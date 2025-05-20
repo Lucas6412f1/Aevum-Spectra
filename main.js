@@ -6,7 +6,7 @@ import { initializeButton } from './supportLogic';
 
 // Game Informatie
 const GAME_TITLE = 'Aevum Spectra';
-const GAME_VERSION = '0.5'; // Updated to version 0.5
+const GAME_VERSION = '0.5';
 const GAME_VERSION_SUFFIX = 'Alpha';
 
 // Game States
@@ -19,20 +19,20 @@ const GAME_STATE = {
 };
 
 // Game Instellingen & Balans
-const TILE_SIZE = 32;           // Grootte van speler, vijanden, kristallen
-const PLAYER_SPEED = 4;         // Snelheid van de speler
-const ENEMY_SPEED = 2;          // Snelheid van de vijanden
-const CRYSTAL_SPAWN_RATE = 0.02;    // Kans per frame dat een kristal spawnt (0.02 = 2%)
-const MAX_CRYSTALS_ON_SCREEN = 8;   // Maximaal aantal kristallen tegelijk op het scherm
-const MAX_HITS_ALLOWED = 5;      // Aantal hits voordat het tijdperk gereset wordt
+const TILE_SIZE = 32;
+const PLAYER_SPEED = 4;
+const ENEMY_SPEED = 2;
+const CRYSTAL_SPAWN_RATE = 0.02;
+const MAX_CRYSTALS_ON_SCREEN = 8;
+const MAX_HITS_ALLOWED = 5;
 
 // --- 2. GAME STATE VARIABELEN ---
-let currentState = GAME_STATE.MENU; // Huidige staat van het spel
-let score = 0;                      // Huidige score van de speler
-let questProgress = 0;              // Aantal verzamelde kristallen voor de huidige quest
-let hitsTaken = 0;                  // Aantal keren dat de speler is geraakt in het huidige tijdperk
-let gameLoopId;                     // Opslag voor requestAnimationFrame ID om de loop te pauzeren/stoppen
-let currentLanguage = 'nl';         // Standaardtaal
+let currentState = GAME_STATE.MENU;
+let score = 0;
+let questProgress = 0;
+let hitsTaken = 0;
+let gameLoopId;
+let currentLanguage = 'nl';
 
 // --- 3. GAME OBJECTS ---
 const gameObjects = {
@@ -41,12 +41,12 @@ const gameObjects = {
         y: 0,
         size: TILE_SIZE,
         speed: PLAYER_SPEED,
-        frame: 0 // Voor eventuele toekomstige animatie
+        frame: 0
     },
     crystals: [],
     enemies: [],
     portals: [],
-    powerUps: [] // Voeg power-ups toe aan game objects
+    powerUps: []
 };
 
 // --- 4. DATA MODELLEN ---
@@ -93,6 +93,7 @@ const translations = {
         quest: "Opdracht",
         progress: "Voortgang",
         version: "Versie",
+        versionSuffix: "Alpha",
         startGame: "Start spel",
         questComplete: "Opdracht voltooid!",
         levelComplete: "Tijdperk voltooid!",
@@ -101,6 +102,16 @@ const translations = {
         notEnoughCrystals: "Niet genoeg kristallen om te craften!",
         gameOverMessage: "Game Over! Je bent te vaak geraakt.",
         gameFinished: "Gefeliciteerd! Je hebt alle tijdperken voltooid!",
+        hitMessage: (crystalsLost, currentHits, maxHits) => `Geraakt! ${crystalsLost} kristallen verloren. Nog ${maxHits - currentHits} hits over.`,
+        timemachineTitle: "Tijdmachine",
+        levelReady: "Klaar",
+        startEraBtn: "Start Tijdperk",
+        enterName: "Voer je naam in",
+        anonymous: "Anoniem",
+        close: "Sluiten",
+        leaderboardTitle: "Highscores",
+        noScoresYet: "Nog geen scores.",
+        activePowerUp: "Actieve Power-Up" // Added translation for active power-up
     },
     en: {
         welcome: "Welcome to Aevum Spectra!",
@@ -109,6 +120,7 @@ const translations = {
         quest: "Quest",
         progress: "Progress",
         version: "Version",
+        versionSuffix: "Alpha",
         startGame: "Start game",
         questComplete: "Quest complete!",
         levelComplete: "Era complete!",
@@ -117,13 +129,86 @@ const translations = {
         notEnoughCrystals: "Not enough crystals to craft!",
         gameOverMessage: "Game Over! You were hit too many times.",
         gameFinished: "Congratulations! You have completed all eras!",
+        hitMessage: (crystalsLost, currentHits, maxHits) => `Hit! Lost ${crystalsLost} crystals. ${maxHits - currentHits} hits left.`,
+        timemachineTitle: "Time Machine",
+        levelReady: "Ready",
+        startEraBtn: "Start Era",
+        enterName: "Enter your name",
+        anonymous: "Anonymous",
+        close: "Close",
+        leaderboardTitle: "Leaderboard",
+        noScoresYet: "No scores yet.",
+        activePowerUp: "Active Power-Up" // Added translation for active power-up
     }
 };
 
-// Function to get the current language translations
-function getCurrentLanguage() {
-    return translations[currentLanguage] || translations['en'];
-}
+// Referenties naar DOM-elementen
+let canvas, ctx;
+let gameContainer, storylineElement, storylineStartButton;
+let scoreElement, levelElement, questElement, progressElement, versionElement, meldingElement;
+let craftButton;
+
+let keys = {};
+
+window.onload = function() {
+    canvas = document.getElementById('gameCanvas');
+    ctx = canvas.getContext('2d');
+    gameContainer = document.getElementById('game-container');
+    storylineElement = document.getElementById('storyline');
+    storylineStartButton = document.getElementById('storyline-start-btn');
+
+    scoreElement = document.getElementById('score');
+    levelElement = document.getElementById('level');
+    questElement = document.getElementById('quest');
+    progressElement = document.getElementById('progress');
+    versionElement = document.getElementById('versie');
+    meldingElement = document.getElementById('melding');
+    const hudElement = document.getElementById('hud');
+
+    // Creëer de Craft knop dynamisch en voeg toe aan de HUD
+    craftButton = document.createElement('button');
+    craftButton.id = 'craft-btn';
+    craftButton.classList.add('main-button'); // Voeg class toe voor styling
+    craftButton.onclick = tryCraft;
+    const versieDiv = document.getElementById('versie');
+    if (versieDiv && hudElement) {
+        hudElement.insertBefore(craftButton, versieDiv);
+    } else if (hudElement) {
+        hudElement.appendChild(craftButton);
+    }
+
+    // Event listener voor de taal selector
+    document.getElementById('language-selector').addEventListener('click', (e) => {
+        if (e.target.tagName === 'SPAN' && e.target.dataset.lang) {
+            setLanguage(e.target.dataset.lang);
+        }
+    });
+
+    // Event listeners voor toetsenbord input
+    document.addEventListener('keydown', e => {
+        keys[e.key.toLowerCase()] = true;
+        if (e.key.toLowerCase() === 'c' && currentState === GAME_STATE.PLAYING && craftButton && !craftButton.disabled) {
+            tryCraft();
+        }
+    });
+    document.addEventListener('keyup', e => {
+        keys[e.key.toLowerCase()] = false;
+    });
+
+    // Gebruik de utility functie om de Start Game knop te initialiseren
+    initializeButton('storyline-start-btn', startGame);
+
+    // Initialiseer de game staat en toon het startscherm
+    setLanguage('nl');
+
+    // Controleer of de canvas correct is geïnitialiseerd
+    if (!canvas || !ctx) {
+        console.error('Canvas of context kon niet worden geïnitialiseerd. Controleer of de canvas correct in de HTML is opgenomen.');
+        alert('Er is een probleem met de game rendering. Probeer de pagina opnieuw te laden.');
+    } else {
+        console.log('Canvas en context succesvol geïnitialiseerd.');
+    }
+};
 
 /**
  * Toont een tijdelijke melding op het scherm.
@@ -133,35 +218,39 @@ function getCurrentLanguage() {
 function displayMessage(message, isCritical = false) {
     if (!meldingElement) return;
 
-    // Stop eventuele lopende animatie
-    meldingElement.style.animation = 'none';
-    meldingElement.offsetHeight; // Trigger reflow om de animatie te resetten
-
     meldingElement.textContent = message;
-    meldingElement.style.setProperty('--melding-border-color', isCritical ? '#FF4136' : '#FFD700');
-    meldingElement.style.display = 'block';
-
-    meldingElement.style.animation = 'fadeInOut 3s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-
-    // Verwijder de display:none na de animatie
-    const animationEndHandler = () => {
-        if (!isCritical) { // Alleen automatisch verbergen als het niet kritiek is
-            meldingElement.style.display = 'none';
-        }
-        meldingElement.removeEventListener('animationend', animationEndHandler);
-    };
-    meldingElement.addEventListener('animationend', animationEndHandler);
+    meldingElement.classList.remove('hidden'); // Maak zichtbaar
 
     if (isCritical) {
-        // Voor kritieke meldingen: game pauzeren, en pas na de animatie weer doorgaan of resetten.
-        currentState = GAME_STATE.DIALOG;
+        meldingElement.classList.add('critical-message'); // Rode rand voor kritieke meldingen
+        // De animatie wordt afgehandeld door CSS (melding-critical-animation)
+    } else {
+        meldingElement.classList.remove('critical-message');
+        // Gebruik fade-in/out animatie voor niet-kritieke meldingen
+        meldingElement.classList.add('fade-in-out');
+        const animationEndHandler = () => {
+            meldingElement.classList.add('hidden'); // Verberg na animatie
+            meldingElement.classList.remove('fade-in-out');
+            meldingElement.removeEventListener('animationend', animationEndHandler);
+        };
+        meldingElement.addEventListener('animationend', animationEndHandler);
+    }
+
+    if (isCritical) {
+        currentState = GAME_STATE.DIALOG; // Pauzeer game
         setTimeout(() => {
             if (hitsTaken >= MAX_HITS_ALLOWED) {
                 resetEra();
             }
-            currentState = GAME_STATE.PLAYING;
-            updateHUD(); // Zorg dat de HUD geüpdatet wordt na reset
-        }, 3000); // Duur van de animatie
+            // Na de kritieke melding en eventuele reset, hervat de game
+            if (currentState !== GAME_STATE.GAME_FINISHED) { // Voorkom hervatten als game is afgerond
+                 currentState = GAME_STATE.PLAYING;
+                 gameLoop(); // Hervat de game loop
+            }
+            meldingElement.classList.add('hidden'); // Verberg kritieke melding na afhandeling
+            meldingElement.classList.remove('critical-message');
+            updateHUD();
+        }, 3000); // Wacht 3 seconden voor afhandeling
     }
 }
 
@@ -181,7 +270,6 @@ const checkCollision = (obj1, obj2) => {
 // --- 9. GAME LOGICA FUNCTIES ---
 
 function updatePlayer() {
-    // Optimalisatie: Geen Math.max/min per keypress, maar na de loop
     let newX = gameObjects.player.x;
     let newY = gameObjects.player.y;
 
@@ -225,6 +313,10 @@ function handleEnemyCollision() {
         return;
     }
 
+    if (activePowerUp === 'invincibility') {
+        return;
+    }
+
     const lang = getCurrentLanguage();
     const crystalsToLose = Math.floor(Math.random() * 3) + 1;
     questProgress -= crystalsToLose;
@@ -240,9 +332,11 @@ function handleEnemyCollision() {
     gameObjects.player.y = Math.random() * (canvas.height - gameObjects.player.size);
 
     if (hitsTaken >= MAX_HITS_ALLOWED) {
-        displayMessage(lang.gameOverMessage, true); // True voor kritieke melding
+        displayMessage(lang.gameOverMessage, true);
+        cancelAnimationFrame(gameLoopId); // Stop de loop onmiddellijk
+        gameLoopId = null; // Reset gameLoopId
     } else {
-        displayMessage(lang.hitMessage(crystalsToLose, hitsTaken, MAX_HITS_ALLOWED), true); // True voor kritieke melding
+        displayMessage(lang.hitMessage(crystalsToLose, hitsTaken, MAX_HITS_ALLOWED), true);
     }
     updateHUD();
 }
@@ -250,39 +344,37 @@ function handleEnemyCollision() {
 function resetEra() {
     hitsTaken = 0;
     questProgress = 0;
-    score = 0; // Reset score bij het starten van een nieuw tijdperk of reset
+    score = 0;
 
     initializeLevel();
     resetPlayer();
-    updateHUD(); // Zorg dat de HUD meteen geüpdatet wordt na reset
+    updateHUD();
 }
 
 function initializeLevel() {
     gameObjects.crystals = [];
     gameObjects.enemies = [];
     gameObjects.portals = [];
+    gameObjects.powerUps = [];
 
-    // Spawn initiële kristallen
     for (let i = 0; i < 3; i++) {
         spawnCrystal();
     }
 
-    // Spawn vijanden gebaseerd op het huidige tijdperk
     const era = eras[selectedEra];
     for (let i = 0; i < era.enemiesCount; i++) {
         spawnEnemy();
     }
 
-    // Voeg het portaal toe aan het einde van het speelveld
     gameObjects.portals.push({
         x: canvas.width * 0.8 - TILE_SIZE / 2,
         y: canvas.height * 0.8 - TILE_SIZE / 2,
-        size: TILE_SIZE * 1.5 // Maak portaal groter dan andere objecten
+        size: TILE_SIZE * 1.5
     });
 }
 
 function spawnCrystal() {
-    const margin = 50; // Zorg dat kristallen niet te dicht bij de rand spawnen
+    const margin = 50;
     gameObjects.crystals.push({
         x: margin + Math.random() * (canvas.width - margin * 2),
         y: margin + Math.random() * (canvas.height - margin * 2),
@@ -292,7 +384,7 @@ function spawnCrystal() {
 }
 
 function spawnEnemy() {
-    const margin = 50; // Zorg dat vijanden niet te dicht bij de rand spawnen
+    const margin = 50;
     gameObjects.enemies.push({
         x: margin + Math.random() * (canvas.width - margin * 2),
         y: margin + Math.random() * (canvas.height - margin * 2),
@@ -301,38 +393,62 @@ function spawnEnemy() {
     });
 }
 
+function tryCraft() {
+    const currentEra = eras[selectedEra];
+    const lang = getCurrentLanguage();
+
+    if (questProgress >= currentEra.requiredCrystals && !currentEra.crafted) {
+        currentEra.crafted = true;
+        score += 50;
+        displayMessage(lang.crafted, false);
+        updateHUD();
+    } else if (currentEra.crafted) {
+        displayMessage(lang.crafted, false);
+    } else {
+        displayMessage(lang.notEnoughCrystals, true);
+    }
+}
+
 // --- Power-Up Feature ---
 const POWER_UP_TYPES = ['speed', 'invincibility'];
 let activePowerUp = null;
 let powerUpTimer = null;
 
 function spawnPowerUp() {
-    const margin = 50;
-    const powerUp = {
-        x: margin + Math.random() * (canvas.width - margin * 2),
-        y: margin + Math.random() * (canvas.height - margin * 2),
-        size: TILE_SIZE,
-        type: POWER_UP_TYPES[Math.floor(Math.random() * POWER_UP_TYPES.length)]
-    };
-    gameObjects.powerUps.push(powerUp);
+    if (gameObjects.powerUps.length < 2) {
+        const margin = 50;
+        const powerUp = {
+            x: margin + Math.random() * (canvas.width - margin * 2),
+            y: margin + Math.random() * (canvas.height - margin * 2),
+            size: TILE_SIZE,
+            type: POWER_UP_TYPES[Math.floor(Math.random() * POWER_UP_TYPES.length)]
+        };
+        gameObjects.powerUps.push(powerUp);
+    }
 }
 
 function activatePowerUp(type) {
-    activePowerUp = type;
+    if (activePowerUp === 'speed') {
+        gameObjects.player.speed = PLAYER_SPEED; // Reset snelheid van vorige speed power-up
+    }
     clearTimeout(powerUpTimer);
-    powerUpTimer = setTimeout(() => {
-        activePowerUp = null;
-        updateHUD();
-    }, 10000); // Power-Up lasts for 10 seconds
+
+    activePowerUp = type;
 
     if (type === 'speed') {
-        gameObjects.player.speed *= 2;
-        setTimeout(() => gameObjects.player.speed = PLAYER_SPEED, 10000);
-    } else if (type === 'invincibility') {
-        // Handle invincibility logic
+        gameObjects.player.speed = PLAYER_SPEED * 2;
     }
+    // Geen specifieke actie nodig voor invincibility hier; de collision check handelt het af
 
-    updateHUD();
+    powerUpTimer = setTimeout(() => {
+        if (activePowerUp === 'speed') {
+            gameObjects.player.speed = PLAYER_SPEED;
+        }
+        activePowerUp = null;
+        updateHUD();
+    }, 10000); // Power-Up duurt 10 seconden
+
+    updateHUD(); // Update om de power-up status te tonen
 }
 
 function updatePowerUps() {
@@ -349,12 +465,21 @@ function updatePowerUps() {
 function updateGeneralUIText() {
     const lang = getCurrentLanguage();
 
+    const gameTitleElement = document.getElementById('game-title');
     if (gameTitleElement) {
         gameTitleElement.textContent = gameTitleElement.getAttribute(`data-${currentLanguage}`);
     }
 
+    const storylineTitleElement = document.getElementById('storyline-title');
+    if (storylineTitleElement) {
+        storylineTitleElement.innerHTML = storylineTitleElement.getAttribute(`data-${currentLanguage}`);
+    }
+    document.querySelectorAll('#storyline-content p').forEach(p => {
+        p.textContent = p.getAttribute(`data-${currentLanguage}`);
+    });
+
     if (storylineStartButton) {
-        storylineStartButton.textContent = lang.startGame;
+        storylineStartButton.textContent = storylineStartButton.getAttribute(`data-${currentLanguage}`);
     }
 }
 
@@ -377,10 +502,10 @@ function updateHUD() {
     const powerUpElement = document.getElementById('active-power-up');
     if (powerUpElement) {
         if (activePowerUp) {
-            powerUpElement.textContent = `Actieve Power-Up: ${activePowerUp}`;
-            powerUpElement.style.display = 'block';
+            powerUpElement.textContent = `${lang.activePowerUp}: ${activePowerUp}`;
+            powerUpElement.classList.remove('hidden');
         } else {
-            powerUpElement.style.display = 'none';
+            powerUpElement.classList.add('hidden');
         }
     }
 }
@@ -388,15 +513,11 @@ function updateHUD() {
 // Functie om de Time Machine dialoog te tonen
 function showTimeMachine() {
     currentState = GAME_STATE.DIALOG;
-    cancelAnimationFrame(gameLoopId); // Pauzeer de game loop
+    cancelAnimationFrame(gameLoopId);
+    gameLoopId = null;
 
     let overlay = document.getElementById('timemachine-overlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'timemachine-overlay';
-        overlay.classList.add('dialog-overlay');
-        document.body.appendChild(overlay);
-    }
+    overlay.classList.remove('hidden'); // Toon de overlay
 
     const lang = getCurrentLanguage();
     overlay.innerHTML = `
@@ -417,8 +538,6 @@ function showTimeMachine() {
         </div>
     `;
 
-    // Optimalisatie: Gebruik event delegation of bind event listeners één keer als de knoppen statisch zijn.
-    // Voor dynamisch gegenereerde elementen zoals hier, moeten listeners opnieuw gebonden worden.
     document.querySelectorAll('#era-select .era-button').forEach(btn => {
         btn.onclick = () => {
             selectedEra = parseInt(btn.getAttribute('data-era'));
@@ -429,9 +548,9 @@ function showTimeMachine() {
     });
 
     document.getElementById('start-era-btn').onclick = () => {
-        overlay.remove(); // Verwijder de overlay
-        startEra(selectedEra); // Start het geselecteerde tijdperk
-        canvas.focus(); // Zorg dat de canvas weer input ontvangt
+        overlay.classList.add('hidden'); // Verberg de overlay
+        startEra(selectedEra);
+        canvas.focus();
     };
 
     document.getElementById('era-quest-display').textContent = eras[selectedEra].quest[currentLanguage];
@@ -441,7 +560,7 @@ function showTimeMachine() {
 // Functie om de Time Machine UI-teksten te updaten bij taalwissel
 function updateTimeMachineUIText() {
     const timemachineOverlay = document.getElementById('timemachine-overlay');
-    if (timemachineOverlay && currentState === GAME_STATE.DIALOG) {
+    if (timemachineOverlay && !timemachineOverlay.classList.contains('hidden')) { // Controleer of de overlay zichtbaar is
         const lang = getCurrentLanguage();
 
         timemachineOverlay.querySelector('h2').textContent = lang.timemachineTitle;
@@ -461,27 +580,30 @@ function updateTimeMachineUIText() {
 }
 
 /** Toont een kort label dat aangeeft dat een tijdperk voltooid is. */
+let levelCompletedLabel;
 function showCompletedLabel() {
     if (!levelCompletedLabel) {
         levelCompletedLabel = document.createElement('div');
         levelCompletedLabel.id = 'level-completed-label';
-        levelCompletedLabel.classList.add('level-completed-label');
+        levelCompletedLabel.classList.add('level-completed-label'); // CSS class voor styling
         document.body.appendChild(levelCompletedLabel);
     }
 
-    levelCompletedLabel.textContent = getCurrentLanguage().levelReady;
-    levelCompletedLabel.style.display = 'block';
-    
-    levelCompletedLabel.style.animation = 'none'; // Reset animatie
-    levelCompletedLabel.offsetHeight; // Trigger reflow
-    levelCompletedLabel.style.animation = 'popAndFade 1.5s forwards cubic-bezier(0.68, -0.55, 0.26, 1.55)';
+    levelCompletedLabel.textContent = getCurrentLanguage().levelComplete;
+    levelCompletedLabel.classList.remove('hidden'); // Zorg dat het zichtbaar wordt
+    levelCompletedLabel.classList.remove('pop-and-fade'); // Reset animatie
+    // Trigger reflow om de animatie te resetten
+    void levelCompletedLabel.offsetWidth; // Dit forceert een reflow
+    levelCompletedLabel.classList.add('pop-and-fade'); // Start animatie
 
     const animationEndHandler = () => {
-        levelCompletedLabel.style.display = 'none';
+        levelCompletedLabel.classList.add('hidden'); // Verberg na animatie
+        levelCompletedLabel.classList.remove('pop-and-fade');
         levelCompletedLabel.removeEventListener('animationend', animationEndHandler);
     };
     levelCompletedLabel.addEventListener('animationend', animationEndHandler);
 }
+
 
 function setLanguage(lang) {
     if (!translations[lang]) {
@@ -499,15 +621,18 @@ function setLanguage(lang) {
     });
 }
 
+function getCurrentLanguage() {
+    return translations[currentLanguage];
+}
+
 // --- 11. GAME STATE MANAGEMENT FUNCTIES ---
 
 function startGame() {
     if (storylineElement) {
-        storylineElement.style.display = 'none'; // Verberg de storyline overlay
+        storylineElement.classList.add('hidden'); // Verberg de storyline overlay
     }
     if (gameContainer) {
-        // Toon de game-container pas als de game daadwerkelijk start
-        gameContainer.style.display = 'flex';
+        gameContainer.classList.remove('hidden'); // Toon de game-container
     }
     currentState = GAME_STATE.PLAYING;
     startEra(selectedEra);
@@ -520,7 +645,7 @@ function startEra(eraId) {
 
     questProgress = 0;
     hitsTaken = 0;
-    score = 0; // Reset score bij het starten van een nieuw tijdperk
+    score = 0;
 
     initializeLevel();
     resetPlayer();
@@ -529,10 +654,6 @@ function startEra(eraId) {
     if (!gameLoopId) {
         gameLoopId = requestAnimationFrame(gameLoop);
     } else {
-        // Als de loop al draait (bijvoorbeeld bij een reset), hoef je hem niet opnieuw te starten
-        // Maar als hij gecancelled was (bijv. na Level Complete), moet hij wel hervat worden.
-        // We kunnen dit checken door `gameLoopId` te resetten naar `null` bij cancel.
-        // Echter, het checken van `currentState` is vaak voldoende.
         if (currentState !== GAME_STATE.PLAYING) {
             gameLoopId = requestAnimationFrame(gameLoop);
         }
@@ -546,9 +667,12 @@ function gameLoop() {
         updatePlayer();
         updateEnemies();
         updatePowerUps();
-        
+
         if (gameObjects.crystals.filter(c => !c.collected).length < MAX_CRYSTALS_ON_SCREEN && Math.random() < CRYSTAL_SPAWN_RATE) {
             spawnCrystal();
+        }
+        if (Math.random() < 0.005) {
+            spawnPowerUp();
         }
 
         gameObjects.crystals.forEach(crystal => {
@@ -570,7 +694,7 @@ function gameLoop() {
                 showCompletedLabel();
                 currentState = GAME_STATE.LEVEL_COMPLETE;
                 cancelAnimationFrame(gameLoopId);
-                gameLoopId = null; // Belangrijk: reset gameLoopId bij annulering
+                gameLoopId = null;
 
                 setTimeout(() => {
                     if (selectedEra < eras.length - 1) {
@@ -587,7 +711,8 @@ function gameLoop() {
     }
 
     drawGame();
-    if (currentState === GAME_STATE.PLAYING) { // Alleen doorgaan met de loop als we PLAYING zijn
+    if (currentState === GAME_STATE.PLAYING || currentState === GAME_STATE.DIALOG || currentState === GAME_STATE.LEVEL_COMPLETE || currentState === GAME_STATE.GAME_FINISHED) {
+        // Blijf renderen, zelfs in dialoog of na level/game voltooiing, zodat overlays zichtbaar blijven
         gameLoopId = requestAnimationFrame(gameLoop);
     }
 }
@@ -596,22 +721,23 @@ function gameLoop() {
 const bufferCanvas = document.createElement('canvas');
 const bufferCtx = bufferCanvas.getContext('2d');
 
-bufferCanvas.width = canvas.width;
-bufferCanvas.height = canvas.height;
-
-/**
- * Tekent alle game-objecten op de buffer-canvas en kopieert deze naar de hoofd-canvas.
- */
 function drawGame() {
-    bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height); // Wis de buffer-canvas
+    if (!canvas || !ctx) return;
+
+    if (bufferCanvas.width === 0 || bufferCanvas.height === 0) {
+        bufferCanvas.width = canvas.width;
+        bufferCanvas.height = canvas.height;
+    }
+
+    bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 
     // --- Teken Speler ---
     const player = gameObjects.player;
-    bufferCtx.fillStyle = '#00BFFF';
+    bufferCtx.fillStyle = activePowerUp === 'invincibility' ? 'var(--color-player-invincible)' : 'var(--color-player)';
     bufferCtx.fillRect(player.x, player.y, player.size, player.size);
 
     // --- Teken Kristallen ---
-    bufferCtx.fillStyle = '#FFD700';
+    bufferCtx.fillStyle = 'var(--color-crystal)';
     gameObjects.crystals.forEach(crystal => {
         if (!crystal.collected) {
             bufferCtx.beginPath();
@@ -621,7 +747,7 @@ function drawGame() {
     });
 
     // --- Teken Vijanden ---
-    bufferCtx.fillStyle = '#FF4136';
+    bufferCtx.fillStyle = 'var(--color-enemy)';
     gameObjects.enemies.forEach(enemy => {
         bufferCtx.beginPath();
         bufferCtx.moveTo(enemy.x, enemy.y + enemy.size);
@@ -631,7 +757,28 @@ function drawGame() {
         bufferCtx.fill();
     });
 
-    // Kopieer de buffer naar de hoofd-canvas
+    // --- Teken Portaal ---
+    bufferCtx.fillStyle = 'var(--color-portal)';
+    gameObjects.portals.forEach(portal => {
+        bufferCtx.beginPath();
+        bufferCtx.arc(portal.x + portal.size / 2, portal.y + portal.size / 2, portal.size / 2, 0, Math.PI * 2);
+        bufferCtx.fill();
+        bufferCtx.strokeStyle = 'var(--color-border)';
+        bufferCtx.lineWidth = 2;
+        bufferCtx.stroke();
+    });
+
+    // --- Teken Power-Ups ---
+    gameObjects.powerUps.forEach(powerUp => {
+        bufferCtx.fillStyle = powerUp.type === 'speed' ? 'var(--color-powerup-speed)' : 'var(--color-powerup-invincibility)';
+        bufferCtx.beginPath();
+        bufferCtx.rect(powerUp.x, powerUp.y, powerUp.size, powerUp.size);
+        bufferCtx.fill();
+        bufferCtx.strokeStyle = 'var(--color-border)';
+        bufferCtx.lineWidth = 1;
+        bufferCtx.stroke();
+    });
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(bufferCanvas, 0, 0);
 }
@@ -646,15 +793,10 @@ const getLeaderboard = () => {
 function requestPlayerNameForLeaderboard() {
     currentState = GAME_STATE.DIALOG;
     cancelAnimationFrame(gameLoopId);
-    gameLoopId = null; // Zorg dat de game loop echt stopt
+    gameLoopId = null;
 
     let overlay = document.getElementById('name-input-overlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'name-input-overlay';
-        overlay.classList.add('dialog-overlay');
-        document.body.appendChild(overlay);
-    }
+    overlay.classList.remove('hidden'); // Toon de overlay
 
     const lang = getCurrentLanguage();
     overlay.innerHTML = `
@@ -675,10 +817,10 @@ function requestPlayerNameForLeaderboard() {
         if (name === '') {
             name = lang.anonymous;
         }
-        
+
         saveScoreToLeaderboardInternal(name, score);
-        
-        overlay.remove();
+
+        overlay.classList.add('hidden'); // Verberg de overlay
         showLeaderboard();
     };
 
@@ -692,7 +834,7 @@ function requestPlayerNameForLeaderboard() {
 function saveScoreToLeaderboardInternal(name, scoreToSave) {
     let leaderboard = getLeaderboard();
     leaderboard.push({ name, score: scoreToSave, date: new Date().toLocaleString() });
-    leaderboard = leaderboard.sort((a, b) => b.score - a.score).slice(0, 5); // Houd top 5 bij
+    leaderboard = leaderboard.sort((a, b) => b.score - a.score).slice(0, 5);
     localStorage.setItem('aevum_spectra_leaderboard', JSON.stringify(leaderboard));
 }
 
@@ -702,12 +844,7 @@ function showLeaderboard() {
     gameLoopId = null;
 
     let overlay = document.getElementById('leaderboard-overlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'leaderboard-overlay';
-        overlay.classList.add('dialog-overlay');
-        document.body.appendChild(overlay);
-    }
+    overlay.classList.remove('hidden'); // Toon de overlay
 
     const lang = getCurrentLanguage();
     const leaderboard = getLeaderboard();
@@ -725,55 +862,10 @@ function showLeaderboard() {
     overlay.innerHTML = `<div class="dialog-content">${html}</div>`;
 
     document.getElementById('close-leaderboard-btn').onclick = () => {
-        overlay.remove();
-        currentState = GAME_STATE.MENU; // Ga terug naar het menu
-        // De game loop wordt pas gestart als op 'Start spel' wordt geklikt in de storyline.
-        // De storyline wordt zichtbaar gemaakt door de onload functie.
-        storylineElement.style.display = 'flex'; // Zorg dat de storyline weer zichtbaar wordt
-        gameContainer.style.display = 'none'; // Verberg de game-container weer
-        updateGeneralUIText(); // Zorgt dat de "Start spel" knop taal correct is
+        overlay.classList.add('hidden'); // Verberg de overlay
+        currentState = GAME_STATE.MENU;
+        storylineElement.classList.remove('hidden'); // Zorg dat de storyline weer zichtbaar wordt
+        gameContainer.classList.add('hidden'); // Verberg de game-container weer
+        updateGeneralUIText();
     };
 }
-
-// --- 14. INITIALISATIE EN EVENT LISTENERS ---
-
-window.onload = function() {
-    // Creëer de Craft knop dynamisch en voeg toe aan de HUD
-    craftButton = document.createElement('button');
-    craftButton.id = 'craft-btn';
-    craftButton.onclick = tryCraft;
-    const versieDiv = document.getElementById('versie');
-    if (versieDiv && hudElement) {
-        hudElement.insertBefore(craftButton, versieDiv);
-    } else if (hudElement) {
-        hudElement.appendChild(craftButton);
-    }
-
-    // Event listener voor de taal selector (nu op de parent div)
-    document.getElementById('language-selector').addEventListener('click', (e) => {
-        if (e.target.tagName === 'SPAN' && e.target.dataset.lang) {
-            setLanguage(e.target.dataset.lang);
-        }
-    });
-
-    // Use the utility function to initialize the Start Game button
-    initializeButton('storyline-start-btn', startGame);
-
-    // Initialiseer de game staat en toon het startscherm
-    setLanguage('nl');
-    // Zorg ervoor dat de game-container verborgen is bij start en de storyline zichtbaar
-    if (gameContainer) {
-        gameContainer.style.display = 'none';
-    }
-    if (storylineElement) {
-        storylineElement.style.display = 'flex'; // Zorg dat de storyline bij start zichtbaar is
-    }
-
-    // Controleer of de canvas correct is geïnitialiseerd
-    if (!canvas || !ctx) {
-        console.error('Canvas of context kon niet worden geïnitialiseerd. Controleer of de canvas correct in de HTML is opgenomen.');
-        alert('Er is een probleem met de game rendering. Probeer de pagina opnieuw te laden.');
-    } else {
-        console.log('Canvas en context succesvol geïnitialiseerd.');
-    }
-};

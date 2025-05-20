@@ -1,12 +1,43 @@
 /* Globale reset en basisstijlen */
+:root {
+    /* Kleuren */
+    --color-primary-bg: linear-gradient(135deg, #1A202C 0%, #0D1117 100%);
+    --color-secondary-bg: rgba(10, 10, 15, 0.8);
+    --color-text-light: #E0E0E0;
+    --color-text-dark: #333;
+    --color-accent-blue: #00BFFF;
+    --color-accent-purple: #8A2BE2;
+    --color-accent-gold: #FFD700;
+    --color-warning-red: #FF4136;
+    --color-success-green: #2ecc40;
+    --color-info-cyan: #00FFFF;
+    --color-info-magenta: #FF00FF;
+    --color-border: #FFFFFF; /* Algemene randkleur */
+
+    /* Spelers- en objectkleuren */
+    --color-player: var(--color-accent-blue);
+    --color-player-invincible: var(--color-success-green);
+    --color-crystal: var(--color-accent-gold);
+    --color-enemy: var(--color-warning-red);
+    --color-portal: var(--color-accent-purple);
+    --color-powerup-speed: var(--color-info-cyan);
+    --color-powerup-invincibility: var(--color-info-magenta);
+
+    /* Shadow/Glow effecten */
+    --shadow-light: 0 0 10px rgba(0, 0, 0, 0.5);
+    --shadow-medium: 0 4px 24px rgba(0, 0, 0, 0.5);
+    --shadow-strong: 0 8px 32px rgba(0, 0, 0, 0.7);
+}
+
+
 body, html {
   margin: 0;
   padding: 0;
   height: 100vh; /* Full viewport height */
   width: 100vw;  /* Full viewport width */
   font-family: 'Segoe UI', Arial, sans-serif; /* Een moderne, schone font */
-  color: #E0E0E0; /* Zacht wit */
-  background: linear-gradient(135deg, #1A202C 0%, #0D1117 100%); /* Diepe donkere gradiënt achtergrond */
+  color: var(--color-text-light); /* Zacht wit */
+  background: var(--color-primary-bg); /* Diepe donkere gradiënt achtergrond */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -21,566 +52,553 @@ body, html {
   height: 550px;
   max-width: 95vw; /* Responsief op kleinere schermen */
   max-height: 95vh;
-  background: rgba(10, 10, 15, 0.8); /* Zeer donkere, semi-transparante basis */
+  background: var(--color-secondary-bg); /* Zeer donkere, semi-transparante basis */
   border-radius: 15px; /* Meer afgeronde hoeken */
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(60, 60, 80, 0.3) inset; /* Diepere schaduw en subtiele inset border */
-  overflow: hidden; /* Zorgt dat elementen niet buiten de container komen */
-  display: flex; /* Gebruik flexbox voor hoofdindeling */
+  box-shadow: var(--shadow-strong); /* Diepere schaduw */
+  display: flex; /* Flexbox voor lay-out binnen de container */
   flex-direction: column;
-  align-items: center; /* Centreer inhoud horizontaal */
-  /* Tijdens het spelen wordt dit gebruikt. Op het startscherm is #storyline overlay actief. */
+  align-items: center;
+  justify-content: flex-start; /* HUD bovenaan */
+  overflow: hidden; /* Zorgt dat de canvas binnen de container blijft */
 }
 
 /* Canvas styling */
 canvas {
   display: block;
-  width: 100%; /* Maakt canvas responsief binnen zijn parent #game-container */
-  height: calc(100% - 80px); /* Hoogte = 100% van game-container min de hoogte van de HUD (80px) */
-  background: #08080c; /* Zeer donkere canvas achtergrond */
-  z-index: 1;
-  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7);
-  margin-top: auto; /* Zorgt dat canvas naar onderen duwt als HUD bovenaan is */
-  visibility: visible; /* Zorg dat canvas niet verborgen is */
-  opacity: 1; /* Volledig zichtbaar */
-}
-
-/* Storyline Overlay (Startscherm) */
-#storyline {
-  position: fixed; /* Zorgt dat het over alles heen ligt */
+  position: absolute; /* Absolute positie binnen game-container */
   top: 0;
   left: 0;
-  width: 100vw; /* Full-screen */
-  height: 100vh; /* Full-screen */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 1000;
-  overflow: hidden;
-}
-
-#storyline-content {
-  max-width: 90%;
-  max-height: 80%;
-  text-align: center;
-  background: linear-gradient(180deg, #1F2533 0%, #11151F 100%); /* Donkere, gelaagde achtergrond */
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-  overflow-y: auto;
-  animation: fadeIn 0.8s ease-out; /* Fade-in animatie voor de overlay */
-}
-
-#storyline-title {
-  font-size: 2.5em;
-  color: #FFD700; /* Goudgeel */
-  margin-bottom: 15px;
-  text-shadow: 0 0 25px rgba(255, 220, 0, 0.7); /* Sterkere gloed */
-  letter-spacing: 1.5px; /* Subtiele letter-spacing */
-  text-transform: uppercase;
-}
-
-#storyline-description {
-  font-size: 1.2em; /* Grotere tekst */
-  color: #E0E0E0;
-  margin-bottom: 20px;
-  line-height: 1.6;
-}
-
-/* Knoppen (algemene stijl voor start game, close, etc.) */
-.main-button, #storyline-start-btn { /* Toegevoegd #storyline-start-btn */
-  background-color: #007BFF; /* Levendig blauw */
-  color: white;
-  padding: 18px 40px; /* Grotere padding voor prominentere knop */
+  width: 100% !important; /* Zorg dat canvas de volledige breedte van de container vult */
+  height: 100% !important; /* Zorg dat canvas de volledige hoogte van de container vult */
+  background: #111; /* Donkere achtergrond voor het speelveld */
   border: none;
-  border-radius: 12px; /* Meer afgeronde hoeken */
-  cursor: pointer;
-  font-size: 1.8em; /* Groter en prominenter */
-  font-weight: bold;
-  margin-top: 30px;
-  transition: background-color 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
-  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.6); /* Gloeiende schaduw */
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  min-width: 250px; /* Zorg voor een minimale breedte */
+  z-index: 1; /* Onder de HUD en Overlays */
 }
 
-.main-button:hover, #storyline-start-btn:hover {
-  background-color: #0056b3;
-  transform: translateY(-7px); /* Meer uitgesproken lift */
-  box-shadow: 0 12px 30px rgba(0, 123, 255, 0.9);
-}
-
-.main-button:active, #storyline-start-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
-}
-
-/* HUD Styling */
+/* HUD (Heads-Up Display) */
 #hud {
-  position: relative;
-  width: 100%; /* Neem de volledige breedte van de container */
-  background: linear-gradient(90deg, #1A202C, #0D1117);
-  backdrop-filter: blur(6px); /* Subtiele blur */
-  padding: 15px 30px;
+  position: relative; /* Zodat het boven de canvas ligt */
+  z-index: 10; /* Hoger dan canvas */
+  width: 100%; /* Volle breedte van de game-container */
+  background: rgba(0, 0, 0, 0.7); /* Donkerder, semi-transparant */
+  padding: 10px 20px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around; /* Gelijkmatige verdeling */
   align-items: center;
-  flex-wrap: wrap;
-  font-size: 1.2em;
-  z-index: 10;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); /* Schaduw voor diepte */
-  height: 90px; /* Fixed height for HUD to prevent layout shifts */
-  box-sizing: border-box; /* Include padding in height */
+  flex-wrap: wrap; /* Zorgt voor omslag op kleinere schermen */
+  gap: 10px; /* Ruimte tussen HUD elementen */
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1); /* Subtiele scheidingslijn */
+  box-shadow: var(--shadow-light); /* Lichte schaduw */
 }
 
 #hud div {
-  padding: 6px 12px;
-  margin: 3px;
-  color: #E0E0E0;
-  font-weight: bold;
-  background: rgba(255, 255, 255, 0.08); /* Lichte achtergrond voor items */
-  border-radius: 6px;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3); /* Subtiele inset shadow */
-}
-
-#score { color: #FFD700; } /* Goudgele score */
-#level { color: #50FA7B; } /* Helder groen niveau */
-#opdracht { color: #8BE9FD; } /* Lichtblauw opdracht */
-#voortgang { color: #FF80BF; } /* Roze-paarse voortgang */
-#versie { font-size: 0.85em; color: #AAA; margin-left: auto; }
-
-/* Power-Up Display */
-#power-up {
-  color: #FFD700;
-  font-weight: bold;
-  background: rgba(255, 223, 0, 0.1);
-  padding: 8px 15px;
+  background: rgba(255, 255, 255, 0.05); /* Zeer subtiele achtergrond voor elk item */
+  padding: 8px 12px;
   border-radius: 8px;
-  box-shadow: inset 0 0 10px rgba(255, 223, 0, 0.3);
-  animation: glow 1.5s infinite alternate;
-}
-
-@keyframes glow {
-  from {
-    box-shadow: 0 0 10px rgba(255, 223, 0, 0.5);
-  }
-  to {
-    box-shadow: 0 0 20px rgba(255, 223, 0, 1);
-  }
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--color-text-light);
+  white-space: nowrap; /* Voorkom dat tekst ombreekt */
 }
 
 /* Meldingen */
 #melding {
   position: absolute;
-  top: 50%;
+  bottom: 20px; /* Plaats onderaan het scherm */
   left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2.5em; /* Grotere melding */
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  padding: 15px 30px;
+  border-radius: 10px;
+  font-size: 1.3em;
   font-weight: bold;
-  padding: 25px 40px;
-  border-radius: 12px;
-  background: rgba(10, 10, 15, 0.9); /* Donkere, semi-transparante achtergrond */
-  backdrop-filter: blur(6px);
-  border: 2px solid; /* Kleur wordt door JS gezet */
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 15px var(--melding-border-color, #FFD700); /* Gloeiende schaduw, kleur door JS */
-  z-index: 15;
-  white-space: nowrap;
-  pointer-events: none;
-  display: none;
-  animation: fadeInOut 3s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Soepelere animatie */
+  text-align: center;
+  z-index: 100; /* Boven alles behalve modals */
+  border: 2px solid var(--color-accent-gold); /* Gele rand */
+  box-shadow: var(--shadow-medium);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
 }
 
-/* Animatie voor meldingen */
+/* Animatie voor meldingen (niet kritiek) */
 @keyframes fadeInOut {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-    10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    90% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+  0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
 }
 
-/* Craft knop (deze zal dynamisch worden toegevoegd aan de HUD) */
-#craft-btn {
-  background-color: #FF8C00; /* Levendig Oranje */
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 1.1em;
-  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-  margin-left: 20px; /* Zorg voor wat ruimte */
-  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
+/* Klasse voor niet-kritieke meldingen */
+.fade-in-out {
+    animation: fadeInOut 3s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-#craft-btn:hover:not(:disabled) {
-  background-color: #E67A00;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.6);
+/* Kritieke meldingen (rood en blijft langer staan) */
+.critical-message {
+    border-color: var(--color-warning-red) !important; /* Overrule standaard geel */
+    animation: shake 0.5s ease-in-out; /* Optionele schud-animatie */
 }
 
-#craft-btn:disabled {
-  background-color: #4A4A4A; /* Donkergrijs */
-  cursor: not-allowed;
-  opacity: 0.7;
-  box-shadow: none;
-  transform: none;
+@keyframes shake {
+    0%, 100% { transform: translateX(-50%); }
+    25% { transform: translateX(-53%); }
+    50% { transform: translateX(-47%); }
+    75% { transform: translateX(-53%); }
 }
 
-/* Taal selector */
-#language-selector {
-  position: fixed;
-  top: 25px;
-  right: 25px;
-  z-index: 9999;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(3px);
-  padding: 8px;
-  border-radius: 12px;
+
+/* Storyline Overlay (Startscherm) */
+#storyline {
+  position: fixed; /* Blijft op zijn plek */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--color-primary-bg); /* Volledige achtergrond */
+  display: flex; /* Centreer content */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Boven alles, behalve loading/error schermen */
+  opacity: 1;
+  transition: opacity 0.5s ease-out;
+}
+
+#storyline.hidden {
+    opacity: 0;
+    pointer-events: none; /* Maakt klikken door de verborgen overlay heen mogelijk */
+}
+
+#storyline-content {
+  background: var(--color-secondary-bg);
+  padding: 40px;
+  border-radius: 20px;
+  max-width: 700px;
+  text-align: center;
+  box-shadow: var(--shadow-strong);
   display: flex;
-  gap: 8px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 1s ease-out;
 }
 
-#language-selector span { /* Aangepast naar span zoals in je HTML */
-  font-size: 24px; /* Grotere vlaggen */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#storyline-title {
+  font-size: 3em;
+  color: var(--color-accent-blue);
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px rgba(0, 191, 255, 0.5); /* subtiele gloed */
+}
+
+#storyline-content p {
+  font-size: 1.1em;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+/* Algemene knop styling */
+.main-button {
+  background: var(--color-accent-blue);
+  color: white;
+  border: none;
+  padding: 18px 36px;
+  border-radius: 10px;
+  font-size: 1.6em;
+  font-weight: bold;
   cursor: pointer;
-  opacity: 0.6;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 191, 255, 0.4);
+  min-width: 250px; /* Minimum breedte voor knoppen */
+}
+
+.main-button:hover {
+  background: #008CBA;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 191, 255, 0.6);
+}
+
+.main-button:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(0, 191, 255, 0.3);
+}
+
+.main-button:disabled {
+    background: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+
+/* Taal Selector */
+#language-selector {
+  position: absolute; /* Absolute positie binnen game-container */
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  gap: 10px;
+  box-shadow: var(--shadow-light);
+}
+
+#language-selector span { /* Gebruik span voor de vlaggen */
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.7;
   transition: all 0.3s ease;
-  padding: 6px 12px;
+  padding: 8px 12px; /* Iets minder padding dan een knop */
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05); /* Subtiele achtergrond */
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  border: none;
+  background: rgba(255, 255, 255, 0.1); /* Lichte achtergrond bij hover */
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #language-selector span:hover {
   opacity: 1;
-  transform: scale(1.1);
-  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.1); /* Iets meer schaal bij hover */
+  background: rgba(255, 255, 255, 0.2);
 }
 
 #language-selector span.active {
   opacity: 1;
-  background: rgba(0, 123, 255, 0.7); /* Actieve vlag heeft blauwe achtergrond */
-  box-shadow: 0 0 15px rgba(0, 123, 255, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
+  border: 2px solid var(--color-accent-gold); /* Actieve taal krijgt gouden rand */
+  box-shadow: 0 0 10px var(--color-accent-gold);
 }
 
-/* Dialog Overlay (Algemeen voor Time Machine, Leaderboard, Name Input) */
+
+/* Algemene Modals/Dialogen */
 .dialog-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.9); /* Donkerder, bijna dekkende overlay */
-    backdrop-filter: blur(10px); /* Sterkere blur */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    animation: fadeIn 0.4s ease-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85); /* Donkerdere overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000; /* Zorg dat het bovenaan ligt */
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+}
+
+.dialog-overlay.hidden {
+    opacity: 0;
+    pointer-events: none; /* Maakt klikken door de verborgen overlay heen mogelijk */
 }
 
 .dialog-content {
-    background: linear-gradient(180deg, #2A2F3D 0%, #1A1F2B 100%); /* Diepere achtergrond */
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(90, 90, 110, 0.4) inset; /* Sterkere schaduw */
-    color: #E0E0E0;
-    text-align: center;
-    max-width: 550px;
-    width: 90%;
-    box-sizing: border-box;
-    animation: fadeInScale 0.4s cubic-bezier(0.2, 0.8, 0.2, 1.0);
+  background: var(--color-secondary-bg);
+  padding: 30px 40px;
+  border-radius: 15px;
+  max-width: 600px;
+  text-align: center;
+  box-shadow: var(--shadow-strong);
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  animation: scaleIn 0.3s ease-out;
 }
 
-.dialog-content h2 {
-    color: #FFD700; /* Goudgeel voor titels */
-    margin-top: 0;
-    margin-bottom: 30px;
-    font-size: 2.5em; /* Grotere titel */
-    text-shadow: 0 0 15px rgba(255, 220, 0, 0.4);
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-/* Leaderboard specifieke styles */
-.leaderboard-list {
-    list-style: none;
-    padding: 0;
-    max-height: 350px; /* Iets hoger */
-    overflow-y: auto;
-    margin-bottom: 25px;
-    border: 1px solid rgba(80, 80, 100, 0.3); /* Subtiele rand */
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.2); /* Lichte transparantie */
-    padding: 15px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+.dialog-title {
+  font-size: 2.5em;
+  color: var(--color-accent-blue);
+  margin-bottom: 10px;
+  text-shadow: 0 0 8px rgba(0, 191, 255, 0.5);
 }
 
-.leaderboard-list li {
-    padding: 12px 0;
-    border-bottom: 1px dashed rgba(60, 60, 80, 0.5); /* Subtielere stippellijn */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1.1em;
-    transition: background-color 0.2s ease;
-}
-
-.leaderboard-list li:hover {
-    background-color: rgba(255, 255, 255, 0.05); /* Highlight bij hover */
-}
-
-.leaderboard-list li:last-child {
-    border-bottom: none;
-}
-
-.leaderboard-name {
-    flex-grow: 1;
-    text-align: left;
-    margin-left: 15px;
-    color: #8BE9FD; /* Lichtblauw voor namen */
-}
-
-.leaderboard-date {
-    font-size: 0.85em;
-    color: #999;
-}
-
-.leaderboard-empty {
-    color: #999;
-    font-style: italic;
-    padding: 20px;
-}
-
-/* Time Machine specifieke styles */
+/* Time Machine specifieke styling */
 .era-selector-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Iets grotere kaarten */
-    gap: 20px; /* Grotere afstand */
-    margin-top: 25px;
-    margin-bottom: 25px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsief grid */
+  gap: 20px;
+  margin-top: 20px;
 }
 
 .era-card {
-    background: linear-gradient(180deg, #3A3F4A 0%, #2A2F3D 100%); /* Gelaagde achtergrond */
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5), inset 0 0 8px rgba(255, 255, 255, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(80, 80, 100, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow-light);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .era-card:hover {
-    transform: translateY(-8px); /* Meer uitgesproken lift */
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .era-button {
-    background-color: #007BFF;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1.2em; /* Grotere tekst */
-    font-weight: bold;
-    width: 100%;
-    margin-bottom: 10px;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+  background: #333;
+  color: var(--color-text-light);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 1.2em;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
-.era-button:hover:not(.selected) {
-    background-color: #0056b3;
-    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.6);
+.era-button:hover {
+  background: #555;
 }
 
 .era-button.selected {
-    background-color: #2ECC40; /* Geselecteerde knop groen */
-    box-shadow: 0 0 20px rgba(46, 204, 64, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.4);
-    transform: scale(1.02); /* Klein beetje schalen als geselecteerd */
+  background: var(--color-accent-blue);
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 0 15px var(--color-accent-blue);
 }
 
 .era-status-label {
-    font-size: 1em; /* Grotere tekst */
-    color: #FFD700;
+    background: var(--color-success-green);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9em;
     font-weight: bold;
-    margin-top: 5px;
-    text-shadow: 0 0 8px rgba(255, 220, 0, 0.3);
 }
 
 .era-quest-text {
-    font-size: 1.2em;
-    color: #C0C0C0;
-    margin-top: 20px;
-    padding: 0 15px;
-    line-height: 1.6;
+  font-size: 1.1em;
+  margin-top: 15px;
+  color: var(--color-text-light);
 }
 
-/* Level Completed label (deze zal dynamisch worden toegevoegd) */
-#level-completed-label {
+/* Naam invoer en Leaderboard styling */
+.name-input-field {
+  width: 80%;
+  padding: 12px 15px;
+  font-size: 1.2em;
+  border: 2px solid var(--color-accent-blue);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--color-text-light);
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.name-input-field::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.name-input-field:focus {
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 0 10px var(--color-accent-gold);
+}
+
+.leaderboard-list {
+  list-style: none; /* Geen standaard lijststijl */
+  padding: 0;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.leaderboard-list li {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 12px 20px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1em;
+  font-weight: bold;
+  box-shadow: var(--shadow-light);
+}
+
+.leaderboard-empty {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 20px;
+}
+
+.leaderboard-name {
+  color: var(--color-accent-blue);
+  flex-grow: 1; /* Neemt resterende ruimte in beslag */
+  text-align: left;
+  margin-left: 15px;
+}
+
+.leaderboard-date {
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Power-up display in HUD */
+#active-power-up {
+    background: var(--color-info-cyan); /* Standaard kleur voor power-up melding */
+    color: var(--color-text-dark);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    font-weight: bold;
+    text-shadow: none; /* Geen tekstschaduw hier */
+}
+
+/* Verborgen klasse voor elementen die met JS getoggled worden */
+.hidden {
+  display: none !important;
+}
+
+/* Level Completed label */
+.level-completed-label {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: linear-gradient(135deg, #2ECC40 0%, #1A9030 100%); /* Groen gradiënt */
-    color: #fff;
-    font-size: 3em; /* Nog groter en opvallender */
+    background: var(--color-success-green);
+    color: white;
+    font-size: 2.5em;
     font-weight: bold;
-    padding: 35px 70px;
-    border-radius: 25px;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(46, 204, 64, 0.8); /* Sterkere gloed */
+    padding: 25px 50px;
+    border-radius: 15px;
+    box-shadow: var(--shadow-strong);
     z-index: 2000;
-    opacity: 0;
-    animation: popAndFade 1.5s forwards cubic-bezier(0.68, -0.55, 0.26, 1.55); /* Speelsere animatie */
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
-    border: 2px solid rgba(255, 255, 255, 0.2); /* Subtiele witte rand */
-    display: none; /* Standaard verborgen, JS toont het */
+    white-space: nowrap; /* Voorkom afbreken van tekst */
+    opacity: 0; /* Standaard onzichtbaar */
+    animation-fill-mode: forwards; /* Behoudt de laatste keyframe staat */
+    pointer-events: none; /* Zorgt ervoor dat het niet klikbaar is */
 }
 
+/* Animatie voor level completed label */
 @keyframes popAndFade {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-    10% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
     80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
 }
 
-/* Voor de input field in de naam popup */
-.name-input-field {
-    width: calc(100% - 40px);
-    padding: 15px;
-    margin-bottom: 25px;
-    border: 2px solid #007BFF;
-    border-radius: 10px;
-    background-color: #333;
-    color: #fff;
-    font-size: 1.2em;
-    text-align: center;
-    box-sizing: border-box;
-    box-shadow: inset 0 0 8px rgba(0, 123, 255, 0.3);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+.level-completed-label.pop-and-fade {
+    animation: popAndFade 1.5s ease-out;
 }
 
-.name-input-field:focus {
-    border-color: #50FA7B; /* Groene focus rand */
-    box-shadow: inset 0 0 12px rgba(46, 204, 64, 0.5), 0 0 15px rgba(46, 204, 64, 0.4);
-    outline: none;
+
+/* Media Queries voor Responsiviteit */
+@media (max-width: 900px) {
+  #game-container {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0; /* Geen afgeronde hoeken op full screen */
+  }
+
+  #hud {
+    padding: 8px 10px;
+    font-size: 0.9em;
+    gap: 5px;
+    height: auto; /* Laat de hoogte dynamisch aanpassen als items wrappen */
+  }
+
+  #hud div {
+    padding: 6px 10px;
+    font-size: 0.9em;
+  }
+
+  #storyline-content {
+    padding: 25px;
+    border-radius: 15px;
+    gap: 15px;
+    max-width: 90%;
+  }
+
+  #storyline-title {
+    font-size: 2.2em;
+  }
+
+  #storyline-content p {
+    font-size: 0.95em;
+    margin-bottom: 8px;
+  }
+
+  .main-button {
+    padding: 15px 30px;
+    font-size: 1.4em;
+    margin-top: 15px;
+    min-width: unset; /* Haal min-width weg op mobiel voor flexibiliteit */
+    width: 80%; /* Geef een percentage breedte */
+    max-width: 300px;
+  }
+
+  .dialog-content {
+    padding: 20px 25px;
+    max-width: 90%;
+    gap: 20px;
+  }
+
+  .dialog-title {
+    font-size: 2em;
+  }
+
+  .name-input-field {
+    width: 90%; /* Meer ruimte op mobiel */
+  }
+
+  .leaderboard-list li {
+    font-size: 1em;
+    padding: 10px 15px;
+  }
+
+  .era-button {
+      font-size: 1.1em;
+      padding: 8px 12px;
+  }
+
+  .level-completed-label {
+      font-size: 1.8em;
+      padding: 15px 30px;
+  }
 }
 
-.name-input-field::placeholder {
-    color: #999;
-}
-
-/* Algemene fade-in animaties */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes fadeInScale {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
+@media (max-width: 600px) {
+    #language-selector {
+        top: 10px;
+        right: 10px;
+        padding: 5px;
+        gap: 5px;
     }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-/* Responsive design voor kleinere schermen */
-@media (max-width: 900px) { /* Aangepast max-width */
-    #game-container {
-        width: 100vw;
-        height: 100vh;
-        max-width: 100vw;
-        max-height: 100vh;
-        border-radius: 0;
-        /* Verberg de game-container op het startscherm om de storyline full-screen te houden */
-        /* De JavaScript zal display: flex zetten wanneer de game start */
-        display: none; /* Standaard verborgen, wordt door JS getoond */
+    #language-selector span {
+        padding: 5px 8px;
+        font-size: 16px;
     }
 
-    /* Voor het startscherm (storyline) op mobiel */
-    #storyline {
-        padding: 10px;
-    }
-
-    #storyline-content {
-        padding: 25px;
-        border-radius: 15px;
-        gap: 15px;
-    }
-
-    #storyline-content h1 {
-        font-size: 2.5em;
-    }
-
-    #storyline-content p {
-        font-size: 1em;
-        margin-bottom: 10px;
-    }
-
-    .main-button, #storyline-start-btn {
-        padding: 15px 30px;
-        font-size: 1.5em;
-        margin-top: 20px;
-        min-width: unset; /* Haal min-width weg op mobiel */
-    }
-
-    #hud {
-        font-size: 0.9em;
-        padding: 8px 15px;
-        height: auto; /* Allow HUD to adjust height dynamically */
-    }
-
-    #hud div {
-        padding: 4px 8px;
-        margin: 2px;
-    }
-
-    #craft-btn {
-        padding: 8px 16px;
-        font-size: 1em;
-        margin-top: 10px; /* Add some space if it wraps */
-    }
-
-    .dialog-content {
-        padding: 25px;
-        font-size: 0.9em;
-        border-radius: 15px;
-    }
-
-    .dialog-content h2 {
-        font-size: 2em;
-    }
-
-    .era-selector-grid {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 15px;
-    }
-
-    .era-button {
-        font-size: 1.1em;
-        padding: 10px 15px;
-    }
-
-    #level-completed-label {
-        font-size: 2.2em;
-        padding: 25px 50px;
-        border-radius: 18px;
-    }
-
-    #melding {
+    #storyline-title {
         font-size: 1.8em;
-        padding: 20px 30px;
+    }
+    #storyline-content p {
+        font-size: 0.9em;
+    }
+
+    .main-button {
+        font-size: 1.2em;
+        padding: 12px 25px;
+    }
+
+    .dialog-title {
+        font-size: 1.8em;
+    }
+
+    .level-completed-label {
+        font-size: 1.5em;
+        padding: 12px 25px;
     }
 }

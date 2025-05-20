@@ -2,44 +2,53 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <meta name="description" content="Aevum Spectra: Een gratis avontuurlijke webgame waar je door de tijd reist om de wereld te redden. Speel nu! | A free time-traveling adventure webgame where you travel through time to save the world. Play now!">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aevum Spectra: Een gratis avontuurlijke webgame waar je door de tijd reist om de wereld te redden. Speel nu! | A free time-traveling adventure webgame where you travel through time to save the world. Play now!">
   <meta name="keywords" content="webgame, gratis game, tijdreizen, avontuur, puzzels, nederlands, time travel, adventure game, free game, browser game, aevum spectra, tijdmachine, tijdperk, era runner, erarunner, tijdreiziger, tijdspel, tijd avontuur.">
   <meta name="author" content="Lucas6412F1">
-  <meta name="language" content="nl, en">  <title>Aevum Spectra - Tijdreizende Avonturen | Time-Traveling Adventures</title>
-  <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  <meta name="language" content="nl, en">
+  <title>Aevum Spectra - Tijdreizende Avonturen | Time-Traveling Adventures</title>
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-KTS7DDXS');</script>
-<!-- End Google Tag Manager -->
-  <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
 </head>
-<body>    <div id="game-container">
-    <div id="language-selector">
-      <span role="img" aria-label="Nederlands" onclick="setLanguage('nl')" class="active" title="Nederlands">🇳🇱</span>
-      <span role="img" aria-label="English" onclick="setLanguage('en')" title="English">🇬🇧</span>
+<body>
+    <div id="game-container" class="hidden"> <div id="language-selector">
+            <span role="img" aria-label="Nederlands" onclick="setLanguage('nl')" class="active" data-lang="nl" title="Nederlands">🇳🇱</span>
+            <span role="img" aria-label="English" onclick="setLanguage('en')" data-lang="en" title="English">🇬🇧</span>
+        </div>
+
+        <h1 id="game-title" data-nl="Aevum Spectra" data-en="Aevum Spectra">Aevum Spectra</h1>
+
+        <div id="hud">
+            <div id="score">Score: 0</div>
+            <div id="level">Tijdperk: Onbekend</div>
+            <div id="quest">Opdracht: Onbekend</div>
+            <div id="progress">Voortgang: 0/0</div>
+            <div id="active-power-up" class="hidden"></div> <div id="versie">Versie: 0.5 Alpha</div>
+            <div id="melding" class="hidden"></div> </div>
+
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <div id="storyline"> <div id="storyline-content">
+                <h1 id="storyline-title" data-nl="<strong>Welkom bij Aevum Spectra!</strong>" data-en="<strong>Welcome to Aevum Spectra!</strong>"><strong>Aevum Spectra</strong></h1>
+                <p data-nl="In het jaar 2150 ontdek jij, een briljante uitvinder en avonturier, een mysterieuze tijdmachine die verborgen ligt onder de ruïnes van een oude stad. Deze technologie stelt je in staat om door verschillende tijdperken te reizen — van oorlogstijdperken in het verleden tot dystopische toekomstscenario's." data-en="In the year 2150, you, a brilliant inventor and adventurer, discover a mysterious time machine hidden beneath the ruins of an old city. This technology allows you to travel through different eras — from war-torn pasts to dystopian futures."></p>
+                <p data-nl="Maar de tijdlijn is ernstig verstoord. Oorlogen dreigen uit te breken die de toekomst kunnen vernietigen. Duistere krachten manipuleren gebeurtenissen om chaos te zaaien en macht te grijpen." data-en="But the timeline is severely disrupted. Wars threaten to erupt that could destroy the future. Dark forces are manipulating events to sow chaos and seize power."></p>
+                <p data-nl="Jouw missie is helder: stop oorlogen voordat ze beginnen, voorkom rampen en red onschuldige mensen. Elk succes brengt de wereld een stukje dichter bij vrede en een betere toekomst." data-en="Your mission is clear: stop wars before they start, prevent disasters, and save innocent people. Every success brings the world closer to peace and a better future."></p>
+                <p data-nl="Met je slimme uitvindingen en moedige acties moet je puzzels oplossen, vijanden slim te slim af zijn en belangrijke keuzes maken die de loop van de geschiedenis bepalen. Ben je klaar om de tijden te trotseren en Aevum Spectra te herstellen?" data-en="With your clever inventions and courageous actions, you must solve puzzles, outsmart enemies, and make important choices that determine the course of history. Are you ready to brave the ages and restore Aevum Spectra?"></p>
+                <button id="storyline-start-btn" class="main-button" data-nl="Start spel" data-en="Start game">Start spel</button>
+            </div>
+        </div>
     </div>
-    
-    <h1 id="game-title" data-nl="Welkom bij Aevum Spectra!" data-en="Welcome to Aevum Spectra!">Welkom bij Aevum Spectra!</h1>
-  
-  <div id="hud">
-    <div id="score">Score: 0</div>
-    <div id="level">Level: 1</div>
-    <div id="opdracht">Opdracht: ...</div>
-    <div id="voortgang">Voortgang: 0/0</div>
-    <div id="versie">Versie: 0.1 Vroege alpha</div>    
-    <div id="melding"></div>
-  </div>
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <div id="storyline">
-    <div id="storyline-content">
-        <h1 id="storyline-title" data-nl="Aevum Spectra" data-en="Aevum Spectra">Aevum Spectra</h1>
-        <p id="storyline-description" data-nl="Reis door de tijd en red de wereld!" data-en="Travel through time and save the world!">Reis door de tijd en red de wereld!</p>
-        <button id="storyline-start-btn" data-nl="Start spel" data-en="Start game">Start spel</button>
-    </div>
-  </div>
-  
-  <script src="main.js"></script>
+
+    <div id="timemachine-overlay" class="dialog-overlay hidden"></div>
+    <div id="name-input-overlay" class="dialog-overlay hidden"></div>
+    <div id="leaderboard-overlay" class="dialog-overlay hidden"></div>
+
+    <script src="supportLogic.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
