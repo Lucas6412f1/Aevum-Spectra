@@ -1,5 +1,5 @@
 /* Globale CSS Variabelen voor consistentie en eenvoudige aanpassing */
-/* Deze sectie definieert alle kleuren, schaduwen, etc. die door de rest van de CSS worden gebruikt. */
+/* Deze sectie definieert ALLE kleuren, schaduwen, overgangen, etc. die door de rest van de CSS worden gebruikt. */
 :root {
     /* Kleurenpalet (geïnspireerd op diepe, rijke tinten met levendige accenten) */
     --color-bg-primary: #171A21; /* Donkere, diepe achtergrond voor de body en storyline overlay */
