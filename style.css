@@ -51,49 +51,40 @@ canvas {
   left: 0;
   width: 100vw; /* Full-screen */
   height: 100vh; /* Full-screen */
-  background: rgba(10, 15, 20, 0.98); /* Bijna dekkende achtergrond */
-  backdrop-filter: blur(12px); /* Sterkere blur */
-  z-index: 2000; /* Zorgt dat het boven de game ligt */
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
-  box-sizing: border-box;
-  animation: fadeIn 0.8s ease-out; /* Fade-in animatie voor de overlay */
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  overflow: hidden;
 }
 
 #storyline-content {
-  background: linear-gradient(180deg, #1F2533 0%, #11151F 100%); /* Donkere, gelaagde achtergrond */
-  padding: 40px;
-  border-radius: 18px;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(70, 70, 90, 0.4) inset; /* Diepere schaduw en inset */
-  max-width: 900px; /* Maximale breedte voor content */
-  width: 90%; /* Responsief */
+  max-width: 90%;
+  max-height: 80%;
   text-align: center;
-  color: #C0C0C0;
-  animation: fadeInScale 0.6s cubic-bezier(0.2, 0.8, 0.2, 1.0); /* Soepelere animatie */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 20px; /* Ruimte tussen elementen */
+  background: linear-gradient(180deg, #1F2533 0%, #11151F 100%); /* Donkere, gelaagde achtergrond */
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  overflow-y: auto;
+  animation: fadeIn 0.8s ease-out; /* Fade-in animatie voor de overlay */
 }
 
-#storyline-content h1 {
+#storyline-title {
+  font-size: 2.5em;
   color: #FFD700; /* Goudgeel */
-  font-size: 3.5em; /* Groter */
-  margin-bottom: 25px;
+  margin-bottom: 15px;
   text-shadow: 0 0 25px rgba(255, 220, 0, 0.7); /* Sterkere gloed */
   letter-spacing: 1.5px; /* Subtiele letter-spacing */
   text-transform: uppercase;
 }
 
-#storyline-content p {
-  font-size: 1.3em; /* Grotere tekst */
-  line-height: 1.8;
-  margin-bottom: 15px; /* Minder marge tussen paragrafen */
-  color: #B0B0B0;
-  max-width: 700px; /* Max breedte voor leesbaarheid */
+#storyline-description {
+  font-size: 1.2em; /* Grotere tekst */
+  color: #E0E0E0;
+  margin-bottom: 20px;
+  line-height: 1.6;
 }
 
 /* Knoppen (algemene stijl voor start game, close, etc.) */
