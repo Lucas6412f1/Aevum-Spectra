@@ -321,10 +321,10 @@ function updateHUD() {
 }
 
 // Leaderboard functionaliteit
-function getLeaderboard() {
-    const data = localStorage.getItem('chronoquest_leaderboard');
+const getLeaderboard = () => {
+    const data = localStorage.getItem('aevum_spectra_leaderboard');
     return data ? JSON.parse(data) : [];
-}
+};
 
 function saveScoreToLeaderboard(score) {
     let name = prompt(currentLanguage === 'nl' ? 'Voer je naam in voor het leaderboard:' : 'Enter your name for the leaderboard:', '');
@@ -332,7 +332,7 @@ function saveScoreToLeaderboard(score) {
     let leaderboard = getLeaderboard();
     leaderboard.push({ name, score, date: new Date().toLocaleString() });
     leaderboard = leaderboard.sort((a, b) => b.score - a.score).slice(0, 5); // Top 5
-    localStorage.setItem('chronoquest_leaderboard', JSON.stringify(leaderboard));
+    localStorage.setItem('aevum_spectra_leaderboard', JSON.stringify(leaderboard));
 }
 
 function showLeaderboard() {
