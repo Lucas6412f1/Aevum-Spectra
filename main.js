@@ -4,8 +4,8 @@
 
 // Game Informatie
 const GAME_TITLE = 'Aevum Spectra';
-const GAME_VERSION = '0.4.1'; // Aangepast!
-const GAME_VERSION_SUFFIX = 'Alpha'; // Aangepast naar 'Alpha'
+const GAME_VERSION = '0.4.2'; // Aangepast!
+const GAME_VERSION_SUFFIX = 'Optimized Alpha'; // Aangepast naar 'Optimized Alpha'
 
 // Game States
 const GAME_STATE = {
@@ -158,6 +158,7 @@ const translations = {
 // --- 5. DOM ELEMENT REFERENTIES ---
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const gameContainer = document.getElementById('game-container'); // Nieuwe referentie
 const gameTitleElement = document.getElementById('game-title');
 const storylineElement = document.getElementById('storyline');
 const storylineStartButton = document.getElementById('storyline-start-btn'); // Verwijzing naar de knop in de hardcoded storyline
@@ -176,10 +177,10 @@ let levelCompletedLabel;
 // --- 6. INITIALISATIE CANVAS ---
 // Canvas breedte en hoogte moeten relatief zijn aan de container.
 // Omdat de HUD nu boven het canvas staat in de flexbox, moeten we de canvas hoogte aanpassen
-// De CSS regelt dit nu met `height: calc(100% - 100px);` voor het canvas.
-// De `width` en `height` attributen op de canvas tag blijven de interne resolutie bepalen.
-canvas.width = 900; // VERBETERD: Interne canvas breedte
-canvas.height = 470; // VERBETERD: Interne canvas hoogte (Totale container hoogte 550 - HUD hoogte 80)
+// De `width` en `height` attributen op de canvas tag bepalen de interne resolutie.
+// Deze zijn nu afgestemd op de nieuwe container afmetingen en HUD hoogte.
+canvas.width = 900;
+canvas.height = 470; // (550px container hoogte - 80px HUD hoogte)
 
 // --- 7. INPUT HANDLING ---
 const keys = {};
@@ -212,41 +213,35 @@ const getCurrentLanguage = () => translations[currentLanguage] || translations['
 function displayMessage(message, isCritical = false) {
     if (!meldingElement) return;
 
+    // Stop eventuele lopende animatie
+    meldingElement.style.animation = 'none';
+    meldingElement.offsetHeight; // Trigger reflow om de animatie te resetten
+
     meldingElement.textContent = message;
-    // Gebruik CSS custom property voor de border kleur
     meldingElement.style.setProperty('--melding-border-color', isCritical ? '#FF4136' : '#FFD700');
     meldingElement.style.display = 'block';
 
-    if (!isCritical) {
-        // Animatie beheert nu het display: none
-        // De @keyframes fadeInOut in CSS zorgt voor de timing en fading
-        meldingElement.style.animation = 'fadeInOut 3s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-    } else {
-        // Voor kritieke meldingen, pauzeer de game
+    meldingElement.style.animation = 'fadeInOut 3s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+
+    // Verwijder de display:none na de animatie
+    const animationEndHandler = () => {
+        if (!isCritical) { // Alleen automatisch verbergen als het niet kritiek is
+            meldingElement.style.display = 'none';
+        }
+        meldingElement.removeEventListener('animationend', animationEndHandler);
+    };
+    meldingElement.addEventListener('animationend', animationEndHandler);
+
+    if (isCritical) {
+        // Voor kritieke meldingen: game pauzeren, en pas na de animatie weer doorgaan of resetten.
         currentState = GAME_STATE.DIALOG;
-        // Zorg dat de animatie correct wordt afgespeeld of gereset als deze al liep
-        meldingElement.style.animation = 'none'; // Reset animatie
-        void meldingElement.offsetWidth; // Trigger reflow
-        meldingElement.style.animation = 'fadeInOut 3s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        
-        // Na de animatie, als kritiek: reset game of resume (afhankelijk van hitsTaken)
         setTimeout(() => {
             if (hitsTaken >= MAX_HITS_ALLOWED) {
                 resetEra();
             }
             currentState = GAME_STATE.PLAYING;
-            // Melding wordt door de CSS animatie verborgen.
-            // Zorg ervoor dat de melding weer onzichtbaar wordt voor de volgende keer.
-            if (!meldingElement.style.animationPlayState || meldingElement.style.animationPlayState === 'running') {
-                meldingElement.addEventListener('animationend', function handler() {
-                    meldingElement.style.display = 'none';
-                    meldingElement.removeEventListener('animationend', handler);
-                });
-            } else {
-                meldingElement.style.display = 'none';
-            }
-            updateHUD();
-        }, 3000); // Tijd voor de animatie om af te lopen
+            updateHUD(); // Zorg dat de HUD geüpdatet wordt na reset
+        }, 3000); // Duur van de animatie
     }
 }
 
@@ -266,21 +261,25 @@ const checkCollision = (obj1, obj2) => {
 // --- 9. GAME LOGICA FUNCTIES ---
 
 function updatePlayer() {
+    // Optimalisatie: Geen Math.max/min per keypress, maar na de loop
+    let newX = gameObjects.player.x;
+    let newY = gameObjects.player.y;
+
     if (keys['arrowup'] || keys['w']) {
-        gameObjects.player.y -= gameObjects.player.speed;
+        newY -= gameObjects.player.speed;
     }
     if (keys['arrowdown'] || keys['s']) {
-        gameObjects.player.y += gameObjects.player.speed;
+        newY += gameObjects.player.speed;
     }
     if (keys['arrowleft'] || keys['a']) {
-        gameObjects.player.x -= gameObjects.player.speed;
+        newX -= gameObjects.player.speed;
     }
     if (keys['arrowright'] || keys['d']) {
-        gameObjects.player.x += gameObjects.player.speed;
+        newX += gameObjects.player.speed;
     }
 
-    gameObjects.player.x = Math.max(0, Math.min(canvas.width - gameObjects.player.size, gameObjects.player.x));
-    gameObjects.player.y = Math.max(0, Math.min(canvas.height - gameObjects.player.size, gameObjects.player.y));
+    gameObjects.player.x = Math.max(0, Math.min(canvas.width - gameObjects.player.size, newX));
+    gameObjects.player.y = Math.max(0, Math.min(canvas.height - gameObjects.player.size, newY));
 }
 
 function updateEnemies() {
@@ -331,10 +330,11 @@ function handleEnemyCollision() {
 function resetEra() {
     hitsTaken = 0;
     questProgress = 0;
-    score = 0;
+    score = 0; // Reset score bij het starten van een nieuw tijdperk of reset
 
     initializeLevel();
     resetPlayer();
+    updateHUD(); // Zorg dat de HUD meteen geüpdatet wordt na reset
 }
 
 function initializeLevel() {
@@ -399,18 +399,13 @@ function tryCraft() {
 
 // --- 10. UI UPDATERS ---
 
-// Deze functie past de HUD en dynamische elementen aan.
-// De storyline-content is hardcoded in index.html en wordt NIET door deze functie gewijzigd.
 function updateGeneralUIText() {
     const lang = getCurrentLanguage();
 
-    // Update de taal van de hoofdgame-titel
-    // De game-title in HTML heeft data-nl en data-en attributen, gebruik die.
     if (gameTitleElement) {
         gameTitleElement.textContent = gameTitleElement.getAttribute(`data-${currentLanguage}`);
     }
 
-    // Update de 'Start spel' knop in de storyline overlay
     if (storylineStartButton) {
         storylineStartButton.textContent = lang.startGame;
     }
@@ -420,14 +415,12 @@ function updateHUD() {
     const lang = getCurrentLanguage();
     const era = eras[selectedEra];
 
-    // Zorg dat de HUD-elementen bestaan (ze zijn hardcoded in index.html)
     if (scoreElement) scoreElement.textContent = `${lang.score}: ${score}`;
     if (levelElement) levelElement.textContent = `${lang.level}: ${era.name[currentLanguage]}`;
     if (questElement) questElement.textContent = `${lang.quest}: ${era.quest[currentLanguage]}`;
     if (progressElement) progressElement.textContent = `${lang.progress}: ${questProgress}/${era.requiredCrystals}`;
     if (versionElement) versionElement.textContent = `${lang.version}: ${GAME_VERSION} ${lang.versionSuffix}`;
 
-    // Update de dynamisch gemaakte craft knop
     if (craftButton) {
         craftButton.textContent = era.crafted ? lang.crafted : lang.craftItem;
         craftButton.disabled = era.crafted || questProgress < era.requiredCrystals;
@@ -466,12 +459,12 @@ function showTimeMachine() {
         </div>
     `;
 
-    // Event listeners toevoegen voor de dynamisch gemaakte knoppen
+    // Optimalisatie: Gebruik event delegation of bind event listeners één keer als de knoppen statisch zijn.
+    // Voor dynamisch gegenereerde elementen zoals hier, moeten listeners opnieuw gebonden worden.
     document.querySelectorAll('#era-select .era-button').forEach(btn => {
         btn.onclick = () => {
             selectedEra = parseInt(btn.getAttribute('data-era'));
             document.getElementById('era-quest-display').textContent = eras[selectedEra].quest[currentLanguage];
-            // Visuele feedback voor de geselecteerde tijdperk knop
             document.querySelectorAll('.era-button').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
         };
@@ -483,7 +476,6 @@ function showTimeMachine() {
         canvas.focus(); // Zorg dat de canvas weer input ontvangt
     };
 
-    // Zorg ervoor dat de quest tekst en de geselecteerde knop correct zijn bij het openen
     document.getElementById('era-quest-display').textContent = eras[selectedEra].quest[currentLanguage];
     document.querySelector(`.era-button[data-era="${selectedEra}"]`).classList.add('selected');
 }
@@ -499,7 +491,7 @@ function updateTimeMachineUIText() {
         document.querySelectorAll('#era-select .era-button').forEach(btn => {
             const eraId = parseInt(btn.getAttribute('data-era'));
             btn.textContent = eras[eraId].name[currentLanguage];
-            const statusLabel = btn.nextElementSibling; // Het span element na de knop
+            const statusLabel = btn.nextElementSibling;
             if (statusLabel) {
                 statusLabel.textContent = lang.levelReady;
             }
@@ -512,27 +504,25 @@ function updateTimeMachineUIText() {
 
 /** Toont een kort label dat aangeeft dat een tijdperk voltooid is. */
 function showCompletedLabel() {
-    // Creëer het label dynamisch als het nog niet bestaat
     if (!levelCompletedLabel) {
         levelCompletedLabel = document.createElement('div');
-        levelCompletedLabel.id = 'level-completed-label'; // Belangrijk voor CSS targeting
-        levelCompletedLabel.classList.add('level-completed-label'); // Belangrijk voor CSS targeting
+        levelCompletedLabel.id = 'level-completed-label';
+        levelCompletedLabel.classList.add('level-completed-label');
         document.body.appendChild(levelCompletedLabel);
     }
 
     levelCompletedLabel.textContent = getCurrentLanguage().levelReady;
-    levelCompletedLabel.style.display = 'block'; // Zorg dat het element zichtbaar is
+    levelCompletedLabel.style.display = 'block';
     
-    // Reset animatie voor herhaling
-    levelCompletedLabel.style.animation = 'none';
-    void levelCompletedLabel.offsetWidth; // Trigger reflow
+    levelCompletedLabel.style.animation = 'none'; // Reset animatie
+    levelCompletedLabel.offsetHeight; // Trigger reflow
     levelCompletedLabel.style.animation = 'popAndFade 1.5s forwards cubic-bezier(0.68, -0.55, 0.26, 1.55)';
 
-    setTimeout(() => {
-        // Na de animatie, verberg het element. De animatie zelf doet de fade-out.
-        // We zetten display:none pas na de animatie, voor een vloeiend effect.
+    const animationEndHandler = () => {
         levelCompletedLabel.style.display = 'none';
-    }, 1500); // Duur van de animatie
+        levelCompletedLabel.removeEventListener('animationend', animationEndHandler);
+    };
+    levelCompletedLabel.addEventListener('animationend', animationEndHandler);
 }
 
 function setLanguage(lang) {
@@ -542,11 +532,10 @@ function setLanguage(lang) {
     }
     currentLanguage = lang;
 
-    updateGeneralUIText(); // Update titel en startknop
-    updateHUD(); // Update HUD teksten
-    updateTimeMachineUIText(); // Update Time Machine dialog als deze open is
+    updateGeneralUIText();
+    updateHUD();
+    updateTimeMachineUIText();
 
-    // Update actieve status van de taalselector knoppen
     document.querySelectorAll('#language-selector span').forEach(span => {
         span.classList.toggle('active', span.getAttribute('data-lang') === lang);
     });
@@ -555,10 +544,16 @@ function setLanguage(lang) {
 // --- 11. GAME STATE MANAGEMENT FUNCTIES ---
 
 function startGame() {
-    if (storylineElement) storylineElement.style.display = 'none';
+    if (storylineElement) {
+        storylineElement.style.display = 'none'; // Verberg de storyline overlay
+    }
+    if (gameContainer) {
+        // Toon de game-container pas als de game daadwerkelijk start
+        gameContainer.style.display = 'flex';
+    }
     currentState = GAME_STATE.PLAYING;
-    startEra(selectedEra); // Start het eerste of laatst geselecteerde tijdperk
-    canvas.focus(); // Zorgt dat de canvas focus heeft voor toetsenbord input
+    startEra(selectedEra);
+    canvas.focus();
 }
 
 function startEra(eraId) {
@@ -569,13 +564,20 @@ function startEra(eraId) {
     hitsTaken = 0;
     score = 0; // Reset score bij het starten van een nieuw tijdperk
 
-    initializeLevel(); // Reset game objects voor het nieuwe tijdperk
-    resetPlayer(); // Plaats speler in het midden
-    updateHUD(); // Update HUD met nieuwe tijdperk info
+    initializeLevel();
+    resetPlayer();
+    updateHUD();
 
-    // Zorg ervoor dat de gameloop draait
     if (!gameLoopId) {
         gameLoopId = requestAnimationFrame(gameLoop);
+    } else {
+        // Als de loop al draait (bijvoorbeeld bij een reset), hoef je hem niet opnieuw te starten
+        // Maar als hij gecancelled was (bijv. na Level Complete), moet hij wel hervat worden.
+        // We kunnen dit checken door `gameLoopId` te resetten naar `null` bij cancel.
+        // Echter, het checken van `currentState` is vaak voldoende.
+        if (currentState !== GAME_STATE.PLAYING) {
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
     }
 }
 
@@ -586,17 +588,15 @@ function gameLoop() {
         updatePlayer();
         updateEnemies();
         
-        // Spawn kristallen indien nodig en er niet te veel zijn
         if (gameObjects.crystals.filter(c => !c.collected).length < MAX_CRYSTALS_ON_SCREEN && Math.random() < CRYSTAL_SPAWN_RATE) {
             spawnCrystal();
         }
 
-        // Controleer op kristal collectie
         gameObjects.crystals.forEach(crystal => {
             if (!crystal.collected && checkCollision(gameObjects.player, crystal)) {
                 crystal.collected = true;
                 questProgress++;
-                score += 10; // Punten voor het verzamelen van kristallen
+                score += 10;
                 updateHUD();
                 if (questProgress >= eras[selectedEra].requiredCrystals) {
                     displayMessage(getCurrentLanguage().questComplete, false);
@@ -604,64 +604,66 @@ function gameLoop() {
             }
         });
 
-        // Controleer op tijdperk voltooiing (na craften en bereiken van portaal)
         const currentEra = eras[selectedEra];
         if (currentEra.crafted && gameObjects.portals.length > 0) {
             const portal = gameObjects.portals[0];
             if (checkCollision(gameObjects.player, portal)) {
-                showCompletedLabel(); // Toon "Level Voltooid!" label
-                currentState = GAME_STATE.LEVEL_COMPLETE; // Zet de game state
-                cancelAnimationFrame(gameLoopId); // Pauzeer de loop
+                showCompletedLabel();
+                currentState = GAME_STATE.LEVEL_COMPLETE;
+                cancelAnimationFrame(gameLoopId);
+                gameLoopId = null; // Belangrijk: reset gameLoopId bij annulering
 
                 setTimeout(() => {
                     if (selectedEra < eras.length - 1) {
-                        // Ga naar het volgende tijdperk
                         selectedEra++;
-                        showTimeMachine(); // Toon Time Machine om volgend tijdperk te kiezen
+                        showTimeMachine();
                     } else {
-                        // Alle tijdperken voltooid, game is uitgespeeld
                         displayMessage(getCurrentLanguage().gameFinished, true);
-                        requestPlayerNameForLeaderboard(); // Vraag naam voor leaderboard
-                        currentState = GAME_STATE.GAME_FINISHED; // Zet de game state
+                        requestPlayerNameForLeaderboard();
+                        currentState = GAME_STATE.GAME_FINISHED;
                     }
-                }, 1200); // Wacht even voordat de UI opent
+                }, 1200);
             }
         }
     }
 
-    drawGame(); // Teken de game op het canvas
-    gameLoopId = requestAnimationFrame(gameLoop); // Herhaal de loop
+    drawGame();
+    if (currentState === GAME_STATE.PLAYING) { // Alleen doorgaan met de loop als we PLAYING zijn
+        gameLoopId = requestAnimationFrame(gameLoop);
+    }
 }
 
 /** Tekent alle game-objecten op het canvas met verbeterde visuele stijlen. */
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Wis het canvas
 
+    // --- Optimalisatie: Schaduwinstellingen groeperen ---
+    // Stel schaduw één keer in voor alle objecten die dezelfde schaduwstijl delen
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'rgba(0, 191, 255, 0.7)'; // Speler schaduw
+    
     // --- Teken Speler (Modern Blokkig) ---
     const player = gameObjects.player;
     ctx.fillStyle = '#00BFFF'; // Levendig hemelsblauw
-    ctx.shadowColor = 'rgba(0, 191, 255, 0.7)';
-    ctx.shadowBlur = 10;
     ctx.fillRect(player.x, player.y, player.size, player.size);
     
     // Voeg een subtielere binnenste schaduw toe (apart getekend)
-    // Dit zorgt voor een lichter center, wat diepte geeft.
-    ctx.globalCompositeOperation = 'source-atop'; // Teken alleen binnen het bestaande vierkant
+    ctx.globalCompositeOperation = 'source-atop';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
     ctx.shadowColor = 'transparent'; // Schaduw resetten voor dit element
     ctx.fillRect(player.x, player.y, player.size, player.size);
-    ctx.globalCompositeOperation = 'source-over'; // Terug naar normale modus
+    ctx.globalCompositeOperation = 'source-over';
 
+    // --- Reset schaduw voor andere objecten ---
     ctx.shadowBlur = 0; // Reset schaduw na het tekenen van de speler
 
     // --- Teken Kristallen (Glinsterende Diamanten) ---
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(255, 215, 0, 0.8)'; // Kristal schaduw
+
     gameObjects.crystals.forEach(crystal => {
         if (!crystal.collected) {
             ctx.fillStyle = '#FFD700'; // Goudgeel
-            ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
-            ctx.shadowBlur = 8;
-
-            // Teken een ster- of diamantvorm
             ctx.beginPath();
             ctx.moveTo(crystal.x + crystal.size / 2, crystal.y);
             ctx.lineTo(crystal.x + crystal.size, crystal.y + crystal.size / 2);
@@ -669,58 +671,56 @@ function drawGame() {
             ctx.lineTo(crystal.x, crystal.y + crystal.size / 2);
             ctx.closePath();
             ctx.fill();
-
-            ctx.shadowBlur = 0; // Reset schaduw
         }
     });
 
-    // --- Teken Vijanden (Agressieve Driehoeken/Pijlen) ---
-    ctx.fillStyle = '#FF4136'; // Fel rood
-    gameObjects.enemies.forEach(enemy => {
-        ctx.shadowColor = 'rgba(255, 65, 54, 0.7)';
-        ctx.shadowBlur = 10;
+    // --- Reset schaduw voor andere objecten ---
+    ctx.shadowBlur = 0;
 
-        // Teken een agressievere pijl of scherpere driehoek
+    // --- Teken Vijanden (Agressieve Driehoeken/Pijlen) ---
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'rgba(255, 65, 54, 0.7)'; // Vijand schaduw
+    ctx.fillStyle = '#FF4136'; // Fel rood
+
+    gameObjects.enemies.forEach(enemy => {
         ctx.beginPath();
         ctx.moveTo(enemy.x, enemy.y + enemy.size);
         ctx.lineTo(enemy.x + enemy.size / 2, enemy.y);
         ctx.lineTo(enemy.x + enemy.size, enemy.y + enemy.size);
         ctx.closePath();
         ctx.fill();
-
-        ctx.shadowBlur = 0; // Reset schaduw
     });
 
+    // --- Reset schaduw voor andere objecten ---
+    ctx.shadowBlur = 0;
+
     // --- Teken Portaal (Glowy Vortex) ---
-    ctx.fillStyle = '#B10DC9'; // Levendig paars
     gameObjects.portals.forEach(portal => {
         const centerX = portal.x + portal.size / 2;
         const centerY = portal.y + portal.size / 2;
         
         // Gloed effect (groter en meer diffuus)
         const gradient = ctx.createRadialGradient(centerX, centerY, portal.size * 0.2, centerX, centerY, portal.size * 0.5);
-        gradient.addColorStop(0, 'rgba(177, 13, 201, 1)'); // Kern van de gloed
-        gradient.addColorStop(0.7, 'rgba(177, 13, 201, 0.5)'); // Overgang van de gloed
-        gradient.addColorStop(1, 'rgba(177, 13, 201, 0)'); // Rand van de gloed, transparant
+        gradient.addColorStop(0, 'rgba(177, 13, 201, 1)');
+        gradient.addColorStop(0.7, 'rgba(177, 13, 201, 0.5)');
+        gradient.addColorStop(1, 'rgba(177, 13, 201, 0)');
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(centerX, centerY, portal.size * 0.5, 0, Math.PI * 2);
         ctx.fill();
 
         // De daadwerkelijke portaal (donkerder en kleiner)
-        ctx.fillStyle = '#7F0A99'; // Donkerder paars voor de kern
+        ctx.fillStyle = '#7F0A99';
         ctx.beginPath();
         ctx.arc(centerX, centerY, portal.size * 0.3, 0, Math.PI * 2);
         ctx.fill();
 
         // Een lichte ring om het portaal te accentueren
-        ctx.strokeStyle = '#E0B0FF'; // Licht paars voor de rand
+        ctx.strokeStyle = '#E0B0FF';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.arc(centerX, centerY, portal.size * 0.4, 0, Math.PI * 2);
         ctx.stroke();
-
-        ctx.shadowBlur = 0; // Reset schaduw na het tekenen van het portaal
     });
 }
 
@@ -733,7 +733,8 @@ const getLeaderboard = () => {
 
 function requestPlayerNameForLeaderboard() {
     currentState = GAME_STATE.DIALOG;
-    cancelAnimationFrame(gameLoopId); // Zorg dat de game loop stopt
+    cancelAnimationFrame(gameLoopId);
+    gameLoopId = null; // Zorg dat de game loop echt stopt
 
     let overlay = document.getElementById('name-input-overlay');
     if (!overlay) {
@@ -755,7 +756,7 @@ function requestPlayerNameForLeaderboard() {
     const playerNameInput = document.getElementById('player-name-input');
     const saveNameBtn = document.getElementById('save-name-btn');
 
-    playerNameInput.focus(); // Focus op het input veld
+    playerNameInput.focus();
 
     saveNameBtn.onclick = () => {
         let name = playerNameInput.value.trim();
@@ -763,16 +764,15 @@ function requestPlayerNameForLeaderboard() {
             name = lang.anonymous;
         }
         
-        saveScoreToLeaderboardInternal(name, score); // Sla score op
+        saveScoreToLeaderboardInternal(name, score);
         
-        overlay.remove(); // Verwijder de overlay
-        showLeaderboard(); // Toon het leaderboard
-        // Hier hoeft canvas.focus() niet, omdat de volgende staat (leaderboard) ook een overlay is.
+        overlay.remove();
+        showLeaderboard();
     };
 
     playerNameInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            saveNameBtn.click(); // Trigger de klik op de save knop bij Enter
+            saveNameBtn.click();
         }
     });
 }
@@ -786,7 +786,8 @@ function saveScoreToLeaderboardInternal(name, scoreToSave) {
 
 function showLeaderboard() {
     currentState = GAME_STATE.DIALOG;
-    cancelAnimationFrame(gameLoopId); // Zorg dat de game loop stopt
+    cancelAnimationFrame(gameLoopId);
+    gameLoopId = null;
 
     let overlay = document.getElementById('leaderboard-overlay');
     if (!overlay) {
@@ -812,10 +813,13 @@ function showLeaderboard() {
     overlay.innerHTML = `<div class="dialog-content">${html}</div>`;
 
     document.getElementById('close-leaderboard-btn').onclick = () => {
-        overlay.remove(); // Verwijder de overlay
+        overlay.remove();
         currentState = GAME_STATE.MENU; // Ga terug naar het menu
-        // Start de game loop niet direct, anders begint hij opnieuw.
-        // Hij wordt pas gestart als op 'Start spel' wordt geklikt in de storyline.
+        // De game loop wordt pas gestart als op 'Start spel' wordt geklikt in de storyline.
+        // De storyline wordt zichtbaar gemaakt door de onload functie.
+        storylineElement.style.display = 'flex'; // Zorg dat de storyline weer zichtbaar wordt
+        gameContainer.style.display = 'none'; // Verberg de game-container weer
+        updateGeneralUIText(); // Zorgt dat de "Start spel" knop taal correct is
     };
 }
 
@@ -826,13 +830,12 @@ window.onload = function() {
     // Creëer de Craft knop dynamisch en voeg toe aan de HUD
     craftButton = document.createElement('button');
     craftButton.id = 'craft-btn';
-    craftButton.onclick = tryCraft; // Koppel de functie aan de knop
-    // Zoek de juiste positie in de HUD, bijvoorbeeld voor de versie div
+    craftButton.onclick = tryCraft;
     const versieDiv = document.getElementById('versie');
     if (versieDiv && hudElement) {
         hudElement.insertBefore(craftButton, versieDiv);
     } else if (hudElement) {
-        hudElement.appendChild(craftButton); // Fallback als versie div niet gevonden
+        hudElement.appendChild(craftButton);
     }
 
     // Event listener voor de taal selector (nu op de parent div)
@@ -847,9 +850,13 @@ window.onload = function() {
         storylineStartButton.onclick = startGame;
     }
 
-    setLanguage('nl'); // Stel de initiële taal in
-
-    // De HUD wordt al geüpdatet via setLanguage.
-    // updateHUD();
-    // updateGeneralUIText(); // Wordt ook al via setLanguage aangeroepen
+    // Initialiseer de game staat en toon het startscherm
+    setLanguage('nl');
+    // Zorg ervoor dat de game-container verborgen is bij start en de storyline zichtbaar
+    if (gameContainer) {
+        gameContainer.style.display = 'none';
+    }
+    if (storylineElement) {
+        storylineElement.style.display = 'flex'; // Zorg dat de storyline bij start zichtbaar is
+    }
 };

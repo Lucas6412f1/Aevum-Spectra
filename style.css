@@ -2,8 +2,8 @@
 body, html {
   margin: 0;
   padding: 0;
-  height: 100vh;
-  width: 100vw;
+  height: 100vh; /* Full viewport height */
+  width: 100vw;  /* Full viewport width */
   font-family: 'Segoe UI', Arial, sans-serif; /* Een moderne, schone font */
   color: #E0E0E0; /* Zacht wit */
   background: linear-gradient(135deg, #1A202C 0%, #0D1117 100%); /* Diepe donkere gradiënt achtergrond */
@@ -11,13 +11,14 @@ body, html {
   justify-content: center;
   align-items: center;
   overflow: hidden; /* Voorkom scrollbars */
+  box-sizing: border-box; /* Zorgt ervoor dat padding/border binnen de breedte/hoogte vallen */
 }
 
 /* Algemene containers voor de game */
 #game-container {
   position: relative;
-  width: 900px; /* VERBETERD: Iets breder */
-  height: 550px; /* VERBETERD: Iets korter */
+  width: 900px; /* Dit is de MAXIMALE breedte/hoogte, niet de startscherm grootte */
+  height: 550px;
   max-width: 95vw; /* Responsief op kleinere schermen */
   max-height: 95vh;
   background: rgba(10, 10, 15, 0.8); /* Zeer donkere, semi-transparante basis */
@@ -27,31 +28,29 @@ body, html {
   display: flex; /* Gebruik flexbox voor hoofdindeling */
   flex-direction: column;
   align-items: center; /* Centreer inhoud horizontaal */
+  /* Tijdens het spelen wordt dit gebruikt. Op het startscherm is #storyline overlay actief. */
 }
 
 /* Canvas styling */
 canvas {
   display: block;
   width: 100%; /* Maakt canvas responsief binnen zijn parent #game-container */
-  /* Hoogte = 100% van game-container min de hoogte van de HUD. */
-  /* Aangepast voor de nieuwe containerhoogte en HUD hoogte */
-  height: calc(100% - 80px); /* Als HUD 80px hoog is, dit aanpassen */
+  height: calc(100% - 80px); /* Hoogte = 100% van game-container min de hoogte van de HUD (80px) */
   background: #08080c; /* Zeer donkere canvas achtergrond */
   z-index: 1;
-  /* Een subtiele interne schaduw op de canvas om het meer 'ingebouwd' te laten lijken */
   box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7);
   margin-top: auto; /* Zorgt dat canvas naar onderen duwt als HUD bovenaan is */
 }
 
-/* Storyline Overlay */
+/* Storyline Overlay (Startscherm) */
 #storyline {
-  position: fixed;
+  position: fixed; /* Zorgt dat het over alles heen ligt */
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(10, 15, 20, 0.95); /* Donkerdere, bijna dekkende achtergrond */
-  backdrop-filter: blur(8px); /* Blur effect op de achtergrond */
+  width: 100vw; /* Full-screen */
+  height: 100vh; /* Full-screen */
+  background: rgba(10, 15, 20, 0.98); /* Bijna dekkende achtergrond */
+  backdrop-filter: blur(12px); /* Sterkere blur */
   z-index: 2000;
   display: flex;
   justify-content: center;
@@ -66,54 +65,62 @@ canvas {
   padding: 40px;
   border-radius: 18px;
   box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(70, 70, 90, 0.4) inset; /* Diepere schaduw en inset */
-  max-width: 750px;
-  width: 90%;
+  max-width: 900px; /* Maximale breedte voor content */
+  width: 90%; /* Responsief */
   text-align: center;
   color: #C0C0C0;
   animation: fadeInScale 0.6s cubic-bezier(0.2, 0.8, 0.2, 1.0); /* Soepelere animatie */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* Ruimte tussen elementen */
 }
 
 #storyline-content h1 {
   color: #FFD700; /* Goudgeel */
-  font-size: 3.2em; /* Groter */
+  font-size: 3.5em; /* Groter */
   margin-bottom: 25px;
-  text-shadow: 0 0 20px rgba(255, 220, 0, 0.6); /* Sterkere gloed */
+  text-shadow: 0 0 25px rgba(255, 220, 0, 0.7); /* Sterkere gloed */
   letter-spacing: 1.5px; /* Subtiele letter-spacing */
+  text-transform: uppercase;
 }
 
 #storyline-content p {
-  font-size: 1.2em; /* Grotere tekst */
-  line-height: 1.7;
-  margin-bottom: 20px;
+  font-size: 1.3em; /* Grotere tekst */
+  line-height: 1.8;
+  margin-bottom: 15px; /* Minder marge tussen paragrafen */
   color: #B0B0B0;
+  max-width: 700px; /* Max breedte voor leesbaarheid */
 }
 
 /* Knoppen (algemene stijl voor start game, close, etc.) */
 .main-button, #storyline-start-btn { /* Toegevoegd #storyline-start-btn */
   background-color: #007BFF; /* Levendig blauw */
   color: white;
-  padding: 16px 35px;
+  padding: 18px 40px; /* Grotere padding voor prominentere knop */
   border: none;
-  border-radius: 10px; /* Iets ronder */
+  border-radius: 12px; /* Meer afgeronde hoeken */
   cursor: pointer;
-  font-size: 1.5em; /* Groter en prominenter */
+  font-size: 1.8em; /* Groter en prominenter */
   font-weight: bold;
   margin-top: 30px;
   transition: background-color 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
-  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.5); /* Gloeiende schaduw */
-  letter-spacing: 0.8px;
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.6); /* Gloeiende schaduw */
+  letter-spacing: 1px;
   text-transform: uppercase;
+  min-width: 250px; /* Zorg voor een minimale breedte */
 }
 
 .main-button:hover, #storyline-start-btn:hover {
   background-color: #0056b3;
-  transform: translateY(-5px); /* Meer uitgesproken lift */
-  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.7);
+  transform: translateY(-7px); /* Meer uitgesproken lift */
+  box-shadow: 0 12px 30px rgba(0, 123, 255, 0.9);
 }
 
 .main-button:active, #storyline-start-btn:active {
   transform: translateY(0);
-  box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
 }
 
 /* HUD Styling */
@@ -441,5 +448,126 @@ canvas {
     border: 2px solid #007BFF;
     border-radius: 10px;
     background-color: #333;
-    color: #E0E0E0;
-    font-size: 1.2em;}
+    color: #fff;
+    font-size: 1.2em;
+    text-align: center;
+    box-sizing: border-box;
+    box-shadow: inset 0 0 8px rgba(0, 123, 255, 0.3);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.name-input-field:focus {
+    border-color: #50FA7B; /* Groene focus rand */
+    box-shadow: inset 0 0 12px rgba(46, 204, 64, 0.5), 0 0 15px rgba(46, 204, 64, 0.4);
+    outline: none;
+}
+
+.name-input-field::placeholder {
+    color: #999;
+}
+
+/* Algemene fade-in animaties */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive design voor kleinere schermen */
+@media (max-width: 900px) { /* Aangepast max-width */
+    #game-container {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        border-radius: 0;
+        /* Verberg de game-container op het startscherm om de storyline full-screen te houden */
+        /* De JavaScript zal display: flex zetten wanneer de game start */
+        display: none; /* Standaard verborgen, wordt door JS getoond */
+    }
+
+    /* Voor het startscherm (storyline) op mobiel */
+    #storyline {
+        padding: 10px;
+    }
+
+    #storyline-content {
+        padding: 25px;
+        border-radius: 15px;
+        gap: 15px;
+    }
+
+    #storyline-content h1 {
+        font-size: 2.5em;
+    }
+
+    #storyline-content p {
+        font-size: 1em;
+        margin-bottom: 10px;
+    }
+
+    .main-button, #storyline-start-btn {
+        padding: 15px 30px;
+        font-size: 1.5em;
+        margin-top: 20px;
+        min-width: unset; /* Haal min-width weg op mobiel */
+    }
+
+    #hud {
+        font-size: 0.9em;
+        padding: 8px 15px;
+        height: auto; /* Allow HUD to adjust height dynamically */
+    }
+
+    #hud div {
+        padding: 4px 8px;
+        margin: 2px;
+    }
+
+    #craft-btn {
+        padding: 8px 16px;
+        font-size: 1em;
+        margin-top: 10px; /* Add some space if it wraps */
+    }
+
+    .dialog-content {
+        padding: 25px;
+        font-size: 0.9em;
+        border-radius: 15px;
+    }
+
+    .dialog-content h2 {
+        font-size: 2em;
+    }
+
+    .era-selector-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 15px;
+    }
+
+    .era-button {
+        font-size: 1.1em;
+        padding: 10px 15px;
+    }
+
+    #level-completed-label {
+        font-size: 2.2em;
+        padding: 25px 50px;
+        border-radius: 18px;
+    }
+
+    #melding {
+        font-size: 1.8em;
+        padding: 20px 30px;
+    }
+}
