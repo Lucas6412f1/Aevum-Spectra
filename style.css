@@ -51,7 +51,7 @@ canvas {
   height: 100vh; /* Full-screen */
   background: rgba(10, 15, 20, 0.98); /* Bijna dekkende achtergrond */
   backdrop-filter: blur(12px); /* Sterkere blur */
-  z-index: 2000;
+  z-index: 2000; /* Zorgt dat het boven de game ligt */
   display: flex;
   justify-content: center;
   align-items: center;

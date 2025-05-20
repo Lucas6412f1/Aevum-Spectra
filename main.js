@@ -4,7 +4,7 @@
 
 // Game Informatie
 const GAME_TITLE = 'Aevum Spectra';
-const GAME_VERSION = '0.4.2'; // Aangepast!
+const GAME_VERSION = '0.4.3'; // Updated to version 0.4.3
 const GAME_VERSION_SUFFIX = 'Optimized Alpha'; // Aangepast naar 'Optimized Alpha'
 
 // Game States
