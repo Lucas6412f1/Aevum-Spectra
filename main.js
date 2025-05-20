@@ -4,7 +4,7 @@
 
 // Game Informatie
 const GAME_TITLE = 'Aevum Spectra';
-const GAME_VERSION = '0.2.0B';
+const GAME_VERSION = '0.3.0';
 const GAME_VERSION_SUFFIX = 'Early Alpha';
 
 // Game States
@@ -402,6 +402,9 @@ function updateGeneralUIText() {
         gameTitleElement.textContent = lang.story.title;
     }
 
+    // Storyline content wordt nu in HTML gezet en alleen bij initialisatie of taalwissel gevuld
+    // De innerHTML update hier is alleen nodig als je story via JS wilt dynamisch wil laden bij taalwissel
+    // Als de storyline altijd zichtbaar is, dan is dit al voldoende
     if (storylineContentElement && currentState === GAME_STATE.MENU) {
         storylineContentElement.innerHTML = `
             <h1><strong>${lang.story.title}</strong></h1>
@@ -448,19 +451,21 @@ function showTimeMachine() {
     // HTML voor de overlay, dynamisch opgebouwd per taal/tijdperk
     const lang = getCurrentLanguage();
     overlay.innerHTML = `
-        <h2>${lang.timemachineTitle}</h2>
-        <div id="era-select" class="era-selector-grid">
-            ${eras.map((era, i) => `
-                <div class="era-card">
-                    <button class="era-button" data-era="${i}">
-                        ${era.name[currentLanguage]}
-                    </button>
-                    ${era.crafted ? `<span class="era-status-label">${lang.levelReady}</span>` : ''}
-                </div>
-            `).join('')}
+        <div class="dialog-content">
+            <h2>${lang.timemachineTitle}</h2>
+            <div id="era-select" class="era-selector-grid">
+                ${eras.map((era, i) => `
+                    <div class="era-card">
+                        <button class="era-button" data-era="${i}">
+                            ${era.name[currentLanguage]}
+                        </button>
+                        ${era.crafted ? `<span class="era-status-label">${lang.levelReady}</span>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+            <p id="era-quest-display" class="era-quest-text"></p>
+            <button id="start-era-btn" class="main-button">${lang.startEraBtn}</button>
         </div>
-        <p id="era-quest-display" class="era-quest-text"></p>
-        <button id="start-era-btn" class="main-button">${lang.startEraBtn}</button>
     `;
 
     // Event listeners toevoegen voor tijdperkselectie
