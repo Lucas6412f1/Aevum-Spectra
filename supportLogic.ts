@@ -33,3 +33,27 @@ export function easeInOutQuad(progress: number): number {
         ? 2 * progress * progress
         : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 }
+
+/**
+ * Utility function to initialize a button with an event listener.
+ * @param buttonId - The ID of the button to initialize.
+ * @param eventHandler - The event handler function to attach to the button.
+ */
+export function initializeButton(buttonId: string, eventHandler: () => void): void {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.addEventListener('click', eventHandler);
+    } else {
+        console.warn(`Button with ID '${buttonId}' not found.`);
+    }
+}
+
+/**
+ * Utility function to initialize multiple buttons with event listeners in a modular way.
+ * @param buttonConfigs - An array of objects containing buttonId and eventHandler for each button.
+ */
+export function initializeButtons(buttonConfigs: { buttonId: string; eventHandler: () => void }[]): void {
+    buttonConfigs.forEach(({ buttonId, eventHandler }) => {
+        initializeButton(buttonId, eventHandler);
+    });
+}

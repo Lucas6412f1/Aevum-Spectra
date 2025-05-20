@@ -1,5 +1,7 @@
 // main.js - Aevum Spectra Game Logic (Modernized for 2025!)
 
+import { initializeButton } from './supportLogic';
+
 // --- 1. GLOBALE CONSTANTEN EN VARIABELEN ---
 
 // Game Informatie
@@ -754,10 +756,8 @@ window.onload = function() {
         }
     });
 
-    // Event listener voor de Start Game knop in de hardcoded storyline
-    if (storylineStartButton) {
-        storylineStartButton.onclick = startGame;
-    }
+    // Use the utility function to initialize the Start Game button
+    initializeButton('storyline-start-btn', startGame);
 
     // Initialiseer de game staat en toon het startscherm
     setLanguage('nl');
