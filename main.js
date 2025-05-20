@@ -1,7 +1,5 @@
-// main.js
-// ChronoQuest v0.1.1 First Public Release
 // Game title
-const gameTitle = 'ChronoQuest';
+const gameTitle = 'Aevum Spectra';
 const gameVersion = '0.2.0';
 const gameVersionSuffix = 'Early alpha';
 const gameTitleElement = document.getElementById('game-title');
@@ -53,7 +51,7 @@ document.addEventListener('keyup', e => keys[e.key] = false);
 // Multi-language support
 const translations = {
   nl: {
-    welcome: "Welkom bij ChronoQuest!",
+    welcome: "Welkom bij Aevum Spectra!",
     score: "Score",
     level: "Level",
     quest: "Opdracht",
@@ -65,7 +63,7 @@ const translations = {
     questComplete: "Level voltooid!",
     levelComplete: "Level voltooid! Op naar het volgende tijdperk!",
     story: {
-      title: "ChronoQuest",
+      title: "Aevum Spectra",
       intro: "In het jaar 2150 ontdek jij, een briljante uitvinder en avonturier, een mysterieuze tijdmachine die verborgen ligt onder de ruïnes van een oude stad. Deze technologie stelt je in staat om door verschillende tijdperken te reizen — van oorlogstijdperken in het verleden tot dystopische toekomstscenario's.",
       conflict: "Maar de tijdlijn is ernstig verstoord. Oorlogen dreigen uit te breken die de toekomst kunnen vernietigen. Duistere krachten manipuleren gebeurtenissen om chaos te zaaien en macht te grijpen.",
       mission: "Jouw missie is helder: stop oorlogen voordat ze beginnen, voorkom rampen en red onschuldige mensen. Elk succes brengt de wereld een stukje dichter bij vrede en een betere toekomst.",
@@ -73,7 +71,7 @@ const translations = {
     }
   },
   en: {
-    welcome: "Welcome to ChronoQuest!",
+    welcome: "Welcome to Aevum Spectra!",
     score: "Score",
     level: "Level", 
     quest: "Quest",
@@ -85,7 +83,7 @@ const translations = {
     questComplete: "Level complete!",
     levelComplete: "Level complete! On to the next era!",
     story: {
-      title: "ChronoQuest",
+      title: "Aevum Spectra",
       intro: "In the year 2150, you, a brilliant inventor and adventurer, discover a mysterious time machine hidden beneath the ruins of an ancient city. This technology allows you to travel through different eras — from wartorn periods in the past to dystopian future scenarios.",
       conflict: "But the timeline is severely disturbed. Wars threaten to break out that could destroy the future. Dark forces are manipulating events to sow chaos and seize power.",
       mission: "Your mission is clear: stop wars before they begin, prevent disasters, and save innocent people. Each success brings the world one step closer to peace and a better future.",
