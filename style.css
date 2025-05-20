@@ -1,140 +1,170 @@
-/* Globale reset en basisstijlen */
+/* Globale CSS Variabelen voor consistentie en eenvoudige aanpassing */
 :root {
-    /* Kleuren */
-    --color-primary-bg: linear-gradient(135deg, #1A202C 0%, #0D1117 100%);
-    --color-secondary-bg: rgba(10, 10, 15, 0.8);
-    --color-text-light: #E0E0E0;
-    --color-text-dark: #333;
-    --color-accent-blue: #00BFFF;
-    --color-accent-purple: #8A2BE2;
-    --color-accent-gold: #FFD700;
-    --color-warning-red: #FF4136;
-    --color-success-green: #2ecc40;
-    --color-info-cyan: #00FFFF;
-    --color-info-magenta: #FF00FF;
-    --color-border: #FFFFFF; /* Algemene randkleur */
+    /* Kleurenpalet (geïnspireerd op diepe, rijke tinten met levendige accenten) */
+    --color-bg-primary: #171A21; /* Donkere, diepe achtergrond */
+    --color-bg-secondary: #2C303A; /* Iets lichtere donkere achtergrond voor panelen */
+    --color-bg-overlay: rgba(0, 0, 0, 0.9); /* Bijna zwart, semi-transparant voor overlays */
 
-    /* Spelers- en objectkleuren */
-    --color-player: var(--color-accent-blue);
-    --color-player-invincible: var(--color-success-green);
-    --color-crystal: var(--color-accent-gold);
-    --color-enemy: var(--color-warning-red);
-    --color-portal: var(--color-accent-purple);
-    --color-powerup-speed: var(--color-info-cyan);
-    --color-powerup-invincibility: var(--color-info-magenta);
+    --color-text-light: #E0E6EB; /* Zacht wit voor hoofdtekst */
+    --color-text-dim: #A0A8B0; /* Gedimde tekst voor details/hints */
+    --color-text-dark: #3E4450; /* Donkere tekst op lichte achtergronden */
 
-    /* Shadow/Glow effecten */
-    --shadow-light: 0 0 10px rgba(0, 0, 0, 0.5);
-    --shadow-medium: 0 4px 24px rgba(0, 0, 0, 0.5);
-    --shadow-strong: 0 8px 32px rgba(0, 0, 0, 0.7);
+    --color-accent-blue: #00BFFF; /* Levendig blauw voor primaire acties/highlights */
+    --color-accent-purple: #9370DB; /* Zacht paars voor belangrijke UI-elementen (portaal) */
+    --color-accent-gold: #FFD700; /* Goud voor verzamelobjecten/progressie */
+    --color-accent-green: #2ECC71; /* Groen voor succes/power-ups */
+    --color-accent-red: #E74C3C; /* Rood voor waarschuwingen/vijanden */
+    --color-accent-cyan: #00FFFF; /* Cyaan voor specifieke power-ups */
+
+    /* Randen en scheidingen */
+    --color-border-light: rgba(255, 255, 255, 0.1);
+    --color-border-medium: rgba(255, 255, 255, 0.2);
+
+    /* Schaduwen voor diepte */
+    --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.4);
+    --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.6);
+    --shadow-strong: 0 12px 40px rgba(0, 0, 0, 0.8);
+
+    /* Overgangen (voor vloeiende animaties) */
+    --transition-fast: 0.2s ease-in-out;
+    --transition-medium: 0.3s ease-in-out;
+    --transition-slow: 0.5s ease-in-out;
+
+    /* Spatie en lay-out */
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 20px;
+    --spacing-lg: 30px;
+    --spacing-xl: 40px;
+
+    /* Radius voor afgeronde hoeken */
+    --radius-sm: 5px;
+    --radius-md: 10px;
+    --radius-lg: 20px;
 }
 
+/* Globale reset en basisstijlen */
+*, *::before, *::after {
+    box-sizing: border-box; /* Zorgt ervoor dat padding en border binnen de afmetingen blijven */
+    margin: 0;
+    padding: 0;
+}
 
 body, html {
-  margin: 0;
-  padding: 0;
-  height: 100vh; /* Full viewport height */
-  width: 100vw;  /* Full viewport width */
-  font-family: 'Segoe UI', Arial, sans-serif; /* Een moderne, schone font */
-  color: var(--color-text-light); /* Zacht wit */
-  background: var(--color-primary-bg); /* Diepe donkere gradiënt achtergrond */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden; /* Voorkom scrollbars */
-  box-sizing: border-box; /* Zorgt ervoor dat padding/border binnen de breedte/hoogte vallen */
+    height: 100vh;
+    width: 100vw;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: var(--color-text-light);
+    background: linear-gradient(135deg, var(--color-bg-primary) 0%, #0D1117 100%); /* Diepe donkere gradiënt */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Voorkom scrollbars op de body */
 }
 
-/* Algemene containers voor de game */
+/* Algemene container voor de game (hoofdpaneel) */
 #game-container {
-  position: relative;
-  width: 900px; /* Dit is de MAXIMALE breedte/hoogte, niet de startscherm grootte */
-  height: 550px;
-  max-width: 95vw; /* Responsief op kleinere schermen */
-  max-height: 95vh;
-  background: var(--color-secondary-bg); /* Zeer donkere, semi-transparante basis */
-  border-radius: 15px; /* Meer afgeronde hoeken */
-  box-shadow: var(--shadow-strong); /* Diepere schaduw */
-  display: flex; /* Flexbox voor lay-out binnen de container */
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start; /* HUD bovenaan */
-  overflow: hidden; /* Zorgt dat de canvas binnen de container blijft */
+    position: relative;
+    width: 960px; /* Net iets breder */
+    height: 600px; /* Net iets hoger */
+    max-width: 95vw;
+    max-height: 95vh;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-strong);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden; /* Belangrijk voor afgeronde hoeken */
+    border: 1px solid var(--color-border-light); /* Subtiele rand */
 }
 
 /* Canvas styling */
 canvas {
-  display: block;
-  position: absolute; /* Absolute positie binnen game-container */
-  top: 0;
-  left: 0;
-  width: 100% !important; /* Zorg dat canvas de volledige breedte van de container vult */
-  height: 100% !important; /* Zorg dat canvas de volledige hoogte van de container vult */
-  background: #111; /* Donkere achtergrond voor het speelveld */
-  border: none;
-  z-index: 1; /* Onder de HUD en Overlays */
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    background: #0A0A0A; /* Nog donkerdere achtergrond voor het speelveld */
+    z-index: 1; /* Onder de HUD */
+    /* Geen border hier, de parent game-container heeft al een rand */
 }
 
 /* HUD (Heads-Up Display) */
 #hud {
-  position: relative; /* Zodat het boven de canvas ligt */
-  z-index: 10; /* Hoger dan canvas */
-  width: 100%; /* Volle breedte van de game-container */
-  background: rgba(0, 0, 0, 0.7); /* Donkerder, semi-transparant */
-  padding: 10px 20px;
-  display: flex;
-  justify-content: space-around; /* Gelijkmatige verdeling */
-  align-items: center;
-  flex-wrap: wrap; /* Zorgt voor omslag op kleinere schermen */
-  gap: 10px; /* Ruimte tussen HUD elementen */
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1); /* Subtiele scheidingslijn */
-  box-shadow: var(--shadow-light); /* Lichte schaduw */
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Donkerder, semi-transparant */
+    padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border-light);
+    box-shadow: var(--shadow-soft);
 }
 
 #hud div {
-  background: rgba(255, 255, 255, 0.05); /* Zeer subtiele achtergrond voor elk item */
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 1.1em;
-  font-weight: bold;
-  color: var(--color-text-light);
-  white-space: nowrap; /* Voorkom dat tekst ombreekt */
+    background: rgba(255, 255, 255, 0.08); /* Iets zichtbaardere achtergrond voor elk item */
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-size: 1em; /* Iets kleiner lettertype voor compactheid */
+    font-weight: bold;
+    color: var(--color-text-light);
+    white-space: nowrap;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Kleine tekstschaduw */
+}
+
+#game-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4em; /* Grotere titel */
+    color: var(--color-accent-blue);
+    text-shadow: 0 0 20px var(--color-accent-blue), 0 0 30px var(--color-accent-purple); /* Intense gloed */
+    z-index: 5; /* Boven canvas, onder HUD */
+    pointer-events: none; /* Niet-klikbaar */
 }
 
 /* Meldingen */
 #melding {
-  position: absolute;
-  bottom: 20px; /* Plaats onderaan het scherm */
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
-  padding: 15px 30px;
-  border-radius: 10px;
-  font-size: 1.3em;
-  font-weight: bold;
-  text-align: center;
-  z-index: 100; /* Boven alles behalve modals */
-  border: 2px solid var(--color-accent-gold); /* Gele rand */
-  box-shadow: var(--shadow-medium);
-  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    position: absolute;
+    bottom: var(--spacing-lg);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-bg-overlay);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: center;
+    z-index: 100;
+    border: 2px solid var(--color-accent-gold); /* Goud voor algemene meldingen */
+    box-shadow: var(--shadow-medium);
+    transition: opacity var(--transition-slow), transform var(--transition-slow);
 }
 
 /* Animatie voor meldingen (niet kritiek) */
 @keyframes fadeInOut {
-  0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-  10% { opacity: 1; transform: translateX(-50%) translateY(0); }
-  90% { opacity: 1; transform: translateX(-50%) translateY(0); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    0% { opacity: 0; transform: translateX(-50%) translateY(30px); }
+    10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-30px); }
 }
 
-/* Klasse voor niet-kritieke meldingen */
 .fade-in-out {
-    animation: fadeInOut 3s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation: fadeInOut 3.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* Kritieke meldingen (rood en blijft langer staan) */
 .critical-message {
-    border-color: var(--color-warning-red) !important; /* Overrule standaard geel */
+    border-color: var(--color-accent-red) !important; /* Overrule met rode rand */
     animation: shake 0.5s ease-in-out; /* Optionele schud-animatie */
 }
 
@@ -148,315 +178,344 @@ canvas {
 
 /* Storyline Overlay (Startscherm) */
 #storyline {
-  position: fixed; /* Blijft op zijn plek */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--color-primary-bg); /* Volledige achtergrond */
-  display: flex; /* Centreer content */
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; /* Boven alles, behalve loading/error schermen */
-  opacity: 1;
-  transition: opacity 0.5s ease-out;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-bg-primary); /* Gebruik primaire BG voor full screen overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity var(--transition-slow);
 }
 
 #storyline.hidden {
     opacity: 0;
-    pointer-events: none; /* Maakt klikken door de verborgen overlay heen mogelijk */
+    pointer-events: none;
+    visibility: hidden; /* Zorgt ervoor dat het element na animatie volledig verdwijnt */
 }
 
 #storyline-content {
-  background: var(--color-secondary-bg);
-  padding: 40px;
-  border-radius: 20px;
-  max-width: 700px;
-  text-align: center;
-  box-shadow: var(--shadow-strong);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  animation: fadeIn 1s ease-out;
+    background: var(--color-bg-secondary);
+    padding: var(--spacing-xl); /* Royaal padding */
+    border-radius: var(--radius-lg);
+    max-width: 960px; /* Breder maken */
+    max-height: 80vh; /* Korter maken (max 80% van viewport hoogte) */
+    text-align: center;
+    box-shadow: var(--shadow-strong);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md); /* Ruimte tussen paragrafen */
+    animation: fadeIn var(--transition-slow) ease-out;
+    overflow-y: auto; /* Voeg een scrollbalk toe als de inhoud toch te hoog is */
+    border: 1px solid var(--color-border-light); /* Subtiele rand */
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 #storyline-title {
-  font-size: 3em;
-  color: var(--color-accent-blue);
-  margin-bottom: 20px;
-  text-shadow: 0 0 10px rgba(0, 191, 255, 0.5); /* subtiele gloed */
+    font-size: 3.5em; /* Iets grotere titel */
+    color: var(--color-accent-blue);
+    margin-bottom: var(--spacing-sm);
+    text-shadow: 0 0 15px rgba(0, 191, 255, 0.7); /* Intensere gloed */
+    line-height: 1.2;
 }
 
 #storyline-content p {
-  font-size: 1.1em;
-  line-height: 1.6;
-  margin-bottom: 15px;
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-text-light); /* Zorg voor goede leesbaarheid */
 }
 
 /* Algemene knop styling */
 .main-button {
-  background: var(--color-accent-blue);
-  color: white;
-  border: none;
-  padding: 18px 36px;
-  border-radius: 10px;
-  font-size: 1.6em;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0, 191, 255, 0.4);
-  min-width: 250px; /* Minimum breedte voor knoppen */
+    background: var(--color-accent-blue);
+    color: white;
+    border: none;
+    padding: 18px 40px; /* Royaler padding */
+    border-radius: var(--radius-md);
+    font-size: 1.5em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background var(--transition-medium), transform var(--transition-medium), box-shadow var(--transition-medium);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.4);
+    min-width: 280px; /* Consistent minimum breedte */
+    letter-spacing: 0.05em; /* Subtiele letterafstand */
+    text-transform: uppercase; /* Hoofdletters voor professionele look */
 }
 
 .main-button:hover {
-  background: #008CBA;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 191, 255, 0.6);
+    background: #007ACC; /* Iets donkerder blauw bij hover */
+    transform: translateY(-5px); /* Meer uitgesproken lift */
+    box-shadow: 0 10px 25px rgba(0, 191, 255, 0.6);
 }
 
 .main-button:active {
-  transform: translateY(0);
-  box-shadow: 0 3px 10px rgba(0, 191, 255, 0.3);
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(0, 191, 255, 0.3);
 }
 
 .main-button:disabled {
-    background: #555;
+    background: #4A505D; /* Gedimde kleur voor disabled */
     cursor: not-allowed;
     box-shadow: none;
     transform: none;
+    opacity: 0.7;
 }
 
 
 /* Taal Selector */
 #language-selector {
-  position: absolute; /* Absolute positie binnen game-container */
-  top: 20px;
-  right: 20px;
-  z-index: 9999;
-  background: rgba(0, 0, 0, 0.7);
-  padding: 10px;
-  border-radius: 10px;
-  display: flex;
-  gap: 10px;
-  box-shadow: var(--shadow-light);
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    z-index: 9999;
+    background: var(--color-bg-overlay);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    display: flex;
+    gap: var(--spacing-sm);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--color-border-light);
 }
 
-#language-selector span { /* Gebruik span voor de vlaggen */
-  font-size: 20px;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: all 0.3s ease;
-  padding: 8px 12px; /* Iets minder padding dan een knop */
-  border-radius: 8px;
-  border: none;
-  background: rgba(255, 255, 255, 0.1); /* Lichte achtergrond bij hover */
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+#language-selector span {
+    font-size: 22px; /* Iets grotere vlaggen */
+    cursor: pointer;
+    opacity: 0.8;
+    transition: all var(--transition-fast);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background: transparent; /* Geen standaard achtergrond */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #language-selector span:hover {
-  opacity: 1;
-  transform: scale(1.1); /* Iets meer schaal bij hover */
-  background: rgba(255, 255, 255, 0.2);
+    opacity: 1;
+    transform: scale(1.15); /* Meer uitgesproken schaal bij hover */
+    background: rgba(255, 255, 255, 0.1);
 }
 
 #language-selector span.active {
-  opacity: 1;
-  border: 2px solid var(--color-accent-gold); /* Actieve taal krijgt gouden rand */
-  box-shadow: 0 0 10px var(--color-accent-gold);
+    opacity: 1;
+    border: 2px solid var(--color-accent-gold);
+    box-shadow: 0 0 12px var(--color-accent-gold);
+    transform: scale(1.05); /* Lichte schaal voor actieve status */
 }
 
 
 /* Algemene Modals/Dialogen */
 .dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85); /* Donkerdere overlay */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000; /* Zorg dat het bovenaan ligt */
-  opacity: 1;
-  transition: opacity 0.3s ease-out;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-bg-overlay);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 1;
+    transition: opacity var(--transition-medium), visibility 0s linear var(--transition-medium);
 }
 
 .dialog-overlay.hidden {
     opacity: 0;
-    pointer-events: none; /* Maakt klikken door de verborgen overlay heen mogelijk */
+    pointer-events: none;
+    visibility: hidden; /* Zorgt ervoor dat het element volledig verdwijnt */
+    transition: opacity var(--transition-medium), visibility 0s linear; /* Geen delay op visibility verdwijnen */
 }
 
 .dialog-content {
-  background: var(--color-secondary-bg);
-  padding: 30px 40px;
-  border-radius: 15px;
-  max-width: 600px;
-  text-align: center;
-  box-shadow: var(--shadow-strong);
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  animation: scaleIn 0.3s ease-out;
+    background: var(--color-bg-secondary);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    max-width: 650px; /* Iets breder voor content */
+    text-align: center;
+    box-shadow: var(--shadow-strong);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    animation: scaleIn var(--transition-medium) ease-out;
+    border: 1px solid var(--color-border-light);
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 .dialog-title {
-  font-size: 2.5em;
-  color: var(--color-accent-blue);
-  margin-bottom: 10px;
-  text-shadow: 0 0 8px rgba(0, 191, 255, 0.5);
+    font-size: 2.8em; /* Grotere titel */
+    color: var(--color-accent-blue);
+    margin-bottom: var(--spacing-sm);
+    text-shadow: 0 0 10px rgba(0, 191, 255, 0.6);
+    letter-spacing: 0.03em;
 }
 
 /* Time Machine specifieke styling */
 .era-selector-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsief grid */
-  gap: 20px;
-  margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Grotere kaarten */
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
 }
 
 .era-card {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  box-shadow: var(--shadow-light);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: rgba(255, 255, 255, 0.08); /* Iets meer contrast */
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    box-shadow: var(--shadow-soft);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+    border: 1px solid transparent; /* Standaard transparante rand */
 }
 
 .era-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    transform: translateY(-8px); /* Meer lift bij hover */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    border-color: var(--color-border-medium);
 }
 
 .era-button {
-  background: #333;
-  color: var(--color-text-light);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 10px 15px;
-  border-radius: 8px;
-  font-size: 1.2em;
-  cursor: pointer;
-  width: 100%;
-  transition: background 0.3s ease, border-color 0.3s ease;
+    background: #4A505D; /* Iets donkerder achtergrond voor de knop */
+    color: var(--color-text-light);
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Duidelijkere rand */
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 1.1em;
+    cursor: pointer;
+    width: 100%;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
 }
 
 .era-button:hover {
-  background: #555;
+    background: #606878; /* Lichtere achtergrond bij hover */
 }
 
 .era-button.selected {
-  background: var(--color-accent-blue);
-  border-color: var(--color-accent-gold);
-  box-shadow: 0 0 15px var(--color-accent-blue);
+    background: var(--color-accent-blue);
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 0 18px var(--color-accent-blue); /* Sterkere gloed bij selectie */
+    color: white;
+    transform: scale(1.02); /* Lichte schaal bij selectie */
 }
 
 .era-status-label {
-    background: var(--color-success-green);
+    background: var(--color-accent-green);
     color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
     font-size: 0.9em;
     font-weight: bold;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    box-shadow: var(--shadow-soft);
 }
 
 .era-quest-text {
-  font-size: 1.1em;
-  margin-top: 15px;
-  color: var(--color-text-light);
+    font-size: 1.0em; /* Iets kleiner lettertype voor de quest tekst */
+    margin-top: var(--spacing-sm);
+    color: var(--color-text-dim); /* Gedimde kleur */
+    line-height: 1.4;
 }
 
 /* Naam invoer en Leaderboard styling */
 .name-input-field {
-  width: 80%;
-  padding: 12px 15px;
-  font-size: 1.2em;
-  border: 2px solid var(--color-accent-blue);
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.5);
-  color: var(--color-text-light);
-  text-align: center;
-  outline: none;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    width: 90%; /* Breder voor betere bruikbaarheid */
+    padding: 15px 20px; /* Royaler padding */
+    font-size: 1.3em;
+    border: 2px solid var(--color-accent-blue);
+    border-radius: var(--radius-md);
+    background: rgba(0, 0, 0, 0.6); /* Donkerdere achtergrond */
+    color: var(--color-text-light);
+    text-align: center;
+    outline: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .name-input-field::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .name-input-field:focus {
-  border-color: var(--color-accent-gold);
-  box-shadow: 0 0 10px var(--color-accent-gold);
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 0 15px var(--color-accent-gold);
 }
 
 .leaderboard-list {
-  list-style: none; /* Geen standaard lijststijl */
-  padding: 0;
-  margin-top: 20px;
-  width: 100%;
+    list-style: none;
+    padding: 0;
+    margin-top: var(--spacing-md);
+    width: 100%;
 }
 
 .leaderboard-list li {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 12px 20px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 1.1em;
-  font-weight: bold;
-  box-shadow: var(--shadow-light);
+    background: rgba(255, 255, 255, 0.08);
+    padding: 15px 25px; /* Royaler padding */
+    margin-bottom: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2em; /* Iets groter lettertype */
+    font-weight: bold;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--color-border-light);
 }
 
 .leaderboard-empty {
     font-style: italic;
-    color: rgba(255, 255, 255, 0.7);
-    padding: 20px;
+    color: var(--color-text-dim);
+    padding: var(--spacing-md);
 }
 
 .leaderboard-name {
-  color: var(--color-accent-blue);
-  flex-grow: 1; /* Neemt resterende ruimte in beslag */
-  text-align: left;
-  margin-left: 15px;
+    color: var(--color-accent-blue);
+    flex-grow: 1;
+    text-align: left;
+    margin-left: var(--spacing-md);
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.leaderboard-score { /* Nieuwe klasse voor de score, voor specifieke styling */
+    color: var(--color-accent-gold);
 }
 
 .leaderboard-date {
-  font-size: 0.8em;
-  color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap; /* Voorkom afbreken van datum */
 }
 
 /* Power-up display in HUD */
 #active-power-up {
-    background: var(--color-info-cyan); /* Standaard kleur voor power-up melding */
-    color: var(--color-text-dark);
-    padding: 5px 10px;
-    border-radius: 5px;
+    background: var(--color-accent-cyan); /* Cyaan voor power-up melding */
+    color: var(--color-text-dark); /* Donkere tekst op de lichte cyaan achtergrond */
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
     font-size: 0.9em;
     font-weight: bold;
-    text-shadow: none; /* Geen tekstschaduw hier */
+    text-shadow: none;
+    box-shadow: var(--shadow-soft);
 }
 
 /* Verborgen klasse voor elementen die met JS getoggled worden */
 .hidden {
-  display: none !important;
+    display: none !important;
 }
 
 /* Level Completed label */
@@ -465,141 +524,231 @@ canvas {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: var(--color-success-green);
+    background: var(--color-accent-green);
     color: white;
-    font-size: 2.5em;
+    font-size: 3em; /* Groter en impactvoller */
     font-weight: bold;
-    padding: 25px 50px;
-    border-radius: 15px;
+    padding: 30px 60px; /* Royaal padding */
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-strong);
     z-index: 2000;
-    white-space: nowrap; /* Voorkom afbreken van tekst */
-    opacity: 0; /* Standaard onzichtbaar */
-    animation-fill-mode: forwards; /* Behoudt de laatste keyframe staat */
-    pointer-events: none; /* Zorgt ervoor dat het niet klikbaar is */
+    white-space: nowrap;
+    opacity: 0;
+    animation-fill-mode: forwards;
+    pointer-events: none;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--color-text-light); /* Duidelijke rand */
 }
 
 /* Animatie voor level completed label */
 @keyframes popAndFade {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
     20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
     80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
 }
 
 .level-completed-label.pop-and-fade {
-    animation: popAndFade 1.5s ease-out;
+    animation: popAndFade 1.8s ease-out; /* Iets langere animatie */
 }
 
 
 /* Media Queries voor Responsiviteit */
-@media (max-width: 900px) {
-  #game-container {
-    width: 100vw;
-    height: 100vh;
-    max-width: 100vw;
-    max-height: 100vh;
-    border-radius: 0; /* Geen afgeronde hoeken op full screen */
-  }
-
-
-  #hud {
-    padding: 8px 10px;
-    font-size: 0.9em;
-    gap: 5px;
-    height: auto; /* Laat de hoogte dynamisch aanpassen als items wrappen */
-  }
-
-  #hud div {
-    padding: 6px 10px;
-    font-size: 0.9em;
-  }
-
-  #storyline-content {
-    padding: 25px;
-    border-radius: 15px;
-    gap: 15px;
-    max-width: 90%;
-  }
-
-  #storyline-title {
-    font-size: 2.2em;
-  }
-
-  #storyline-content p {
-    font-size: 0.95em;
-    margin-bottom: 8px;
-  }
-
-  .main-button {
-    padding: 15px 30px;
-    font-size: 1.4em;
-    margin-top: 15px;
-    min-width: unset; /* Haal min-width weg op mobiel voor flexibiliteit */
-    width: 80%; /* Geef een percentage breedte */
-    max-width: 300px;
-  }
-
-  .dialog-content {
-    padding: 20px 25px;
-    max-width: 90%;
-    gap: 20px;
-  }
-
-  .dialog-title {
-    font-size: 2em;
-  }
-
-  .name-input-field {
-    width: 90%; /* Meer ruimte op mobiel */
-  }
-
-  .leaderboard-list {
-    font-size: 1em;
-    padding: 10px 15px;
-  }
-
-  .era-button {
-      font-size: 1.1em;
-      padding: 8px 12px;
-  }
-
-  .level-completed-label {
-      font-size: 1.8em;
-      padding: 15px 30px;
-  }
-}
-
-@media (max-width: 600px) {
-    #language-selector {
-        top: 10px;
-        right: 10px;
-        padding: 5px;
-        gap: 5px;
+@media (max-width: 992px) { /* Tablet size */
+    #game-container {
+        width: 90vw;
+        height: 90vh;
+        border-radius: var(--radius-lg);
     }
-    #language-selector span {
-        padding: 5px 8px;
-        font-size: 16px;
+
+    #game-title {
+        font-size: 3.5em;
+    }
+
+    #hud {
+        padding: var(--spacing-sm);
+        gap: var(--spacing-sm);
+    }
+
+    #hud div {
+        padding: 6px 10px;
+        font-size: 0.9em;
+    }
+
+    #storyline-content {
+        padding: var(--spacing-lg);
+        max-width: 90vw;
+        max-height: 85vh;
+        gap: var(--spacing-md);
     }
 
     #storyline-title {
-        font-size: 1.8em;
+        font-size: 2.8em;
     }
+
+    #storyline-content p {
+        font-size: 1em;
+    }
+
+    .main-button {
+        padding: 15px 30px;
+        font-size: 1.3em;
+        min-width: unset;
+        width: 85%;
+        max-width: 350px;
+    }
+
+    .dialog-content {
+        padding: var(--spacing-md);
+        max-width: 90vw;
+        gap: var(--spacing-md);
+    }
+
+    .dialog-title {
+        font-size: 2.2em;
+    }
+
+    .era-selector-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: var(--spacing-md);
+    }
+
+    .era-button {
+        font-size: 1em;
+        padding: 10px 15px;
+    }
+
+    .name-input-field {
+        width: 95%;
+    }
+
+    .leaderboard-list li {
+        font-size: 1.1em;
+        padding: 12px 20px;
+    }
+
+    .level-completed-label {
+        font-size: 2.2em;
+        padding: 20px 40px;
+    }
+}
+
+@media (max-width: 768px) { /* Medium mobile / small tablet */
+    #game-container {
+        border-radius: 0; /* Full screen op kleine apparaten */
+    }
+
+    #language-selector {
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        padding: var(--spacing-xs);
+        gap: var(--spacing-xs);
+    }
+
+    #language-selector span {
+        font-size: 18px;
+        padding: 6px 10px;
+    }
+
+    #game-title {
+        font-size: 2.8em;
+    }
+
+    #hud {
+        padding: var(--spacing-xs);
+        font-size: 0.8em;
+    }
+
+    #hud div {
+        padding: 4px 8px;
+        border-radius: var(--radius-sm);
+    }
+
+    #melding {
+        font-size: 1em;
+        padding: var(--spacing-sm);
+    }
+
+    #storyline-content {
+        padding: var(--spacing-md);
+        max-width: 95vw;
+        max-height: 90vh;
+        gap: var(--spacing-sm);
+    }
+
+    #storyline-title {
+        font-size: 2em;
+    }
+
     #storyline-content p {
         font-size: 0.9em;
     }
 
     .main-button {
-        font-size: 1.2em;
+        font-size: 1.1em;
         padding: 12px 25px;
+        width: 90%;
+    }
+
+    .dialog-content {
+        padding: var(--spacing-sm);
+        gap: var(--spacing-sm);
     }
 
     .dialog-title {
         font-size: 1.8em;
     }
 
+    .era-selector-grid {
+        grid-template-columns: 1fr; /* Stapelen op de kleinste schermen */
+        gap: var(--spacing-sm);
+    }
+
+    .era-button {
+        font-size: 0.95em;
+        padding: 8px 12px;
+    }
+
+    .name-input-field {
+        font-size: 1.1em;
+        padding: 10px 15px;
+    }
+
+    .leaderboard-list li {
+        font-size: 1em;
+        padding: 10px 15px;
+    }
+
+    .level-completed-label {
+        font-size: 1.8em;
+        padding: 15px 30px;
+    }
+}
+
+@media (max-width: 480px) { /* Extra kleine mobiele apparaten */
+    #game-title {
+        font-size: 2em;
+    }
+
+    #storyline-title {
+        font-size: 1.6em;
+    }
+
+    #storyline-content p {
+        font-size: 0.8em;
+    }
+
+    .main-button {
+        font-size: 1em;
+        padding: 10px 20px;
+    }
+
+    .dialog-title {
+        font-size: 1.6em;
+    }
+
     .level-completed-label {
         font-size: 1.5em;
-        padding: 12px 25px;
+        padding: 10px 20px;
     }
 }
