@@ -159,6 +159,44 @@ function updatePlayer() {
     // Zorg ervoor dat de speler binnen de canvasgrenzen blijft
     gameObjects.player.x = Math.max(0, Math.min(canvas.width - gameObjects.player.size, gameObjects.player.x));
     gameObjects.player.y = Math.max(0, Math.min(canvas.height - gameObjects.player.size, gameObjects.player.y));
+}function updateEnemies() {
+    gameObjects.enemies.forEach(enemy => {
+        // Simpele beweging: vijanden bewegen richting de speler
+        const player = gameObjects.player;
+        const dx = player.x - enemy.x;
+        const dy = player.y - enemy.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > 0) {
+            enemy.x += (dx / distance) * ENEMY_SPEED;
+            enemy.y += (dy / distance) * ENEMY_SPEED;
+        }
+
+        // Check op botsing met de speler
+        if (checkCollision(player, enemy)) {
+            // Vijand heeft de speler geraakt
+            handleEnemyCollision(); // Deze functie moet ook bestaan
+        }
+    });
+}
+
+// <<< LET OP: De 'checkCollision' en 'handleEnemyCollision' functies MOETEN ook bestaan! >>>
+// Als je die nog niet hebt, kunnen we die hierna toevoegen.
+function checkCollision(obj1, obj2) {
+    // Dit is een simpele botsingsdetectie voor rechthoekige objecten
+    // Gebaseerd op de x, y, en size (breedte/hoogte) van de objecten.
+    return obj1.x < obj2.x + obj2.size &&
+           obj1.x + obj1.size > obj2.x &&
+           obj1.y < obj2.y + obj2.size &&
+           obj1.y + obj1.size > obj2.y;
+}
+function handleEnemyCollision() {
+    currentState = GAME_STATE.DIALOG; // Of GAME_STATE.GAME_OVER als je die hebt
+    displayMessage(currentLanguage === 'nl' ? 'Je bent geraakt door een vijand! Game Over!' : 'You were hit by an enemy! Game Over!', true);
+    // Hier kun je logica toevoegen zoals:
+    score = 0;
+    resetPlayer();
+    // Of een Game Over scherm tonen.
 }
 function startGame() {
     const storylineElement = document.getElementById('storyline');
