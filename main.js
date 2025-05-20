@@ -4,7 +4,7 @@
 
 // Game Informatie
 const GAME_TITLE = 'Aevum Spectra';
-const GAME_VERSION = '0.4.0'; // Aangepast!
+const GAME_VERSION = '0.4.1'; // Aangepast!
 const GAME_VERSION_SUFFIX = 'Alpha'; // Aangepast naar 'Alpha'
 
 // Game States
@@ -178,8 +178,8 @@ let levelCompletedLabel;
 // Omdat de HUD nu boven het canvas staat in de flexbox, moeten we de canvas hoogte aanpassen
 // De CSS regelt dit nu met `height: calc(100% - 100px);` voor het canvas.
 // De `width` en `height` attributen op de canvas tag blijven de interne resolutie bepalen.
-canvas.width = 800;
-canvas.height = 600; // Dit is de *interne resolutie* van de canvas, niet de getoonde grootte.
+canvas.width = 900; // VERBETERD: Interne canvas breedte
+canvas.height = 470; // VERBETERD: Interne canvas hoogte (Totale container hoogte 550 - HUD hoogte 80)
 
 // --- 7. INPUT HANDLING ---
 const keys = {};

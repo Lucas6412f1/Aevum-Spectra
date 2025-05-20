@@ -16,8 +16,8 @@ body, html {
 /* Algemene containers voor de game */
 #game-container {
   position: relative;
-  width: 800px; /* Vaste breedte voor de container */
-  height: 600px; /* Vaste hoogte voor de container */
+  width: 900px; /* VERBETERD: Iets breder */
+  height: 550px; /* VERBETERD: Iets korter */
   max-width: 95vw; /* Responsief op kleinere schermen */
   max-height: 95vh;
   background: rgba(10, 10, 15, 0.8); /* Zeer donkere, semi-transparante basis */
@@ -33,7 +33,9 @@ body, html {
 canvas {
   display: block;
   width: 100%; /* Maakt canvas responsief binnen zijn parent #game-container */
-  height: calc(100% - 100px); /* Ruimte voor HUD, pas aan indien HUD hoogte verandert */
+  /* Hoogte = 100% van game-container min de hoogte van de HUD. */
+  /* Aangepast voor de nieuwe containerhoogte en HUD hoogte */
+  height: calc(100% - 80px); /* Als HUD 80px hoog is, dit aanpassen */
   background: #08080c; /* Zeer donkere canvas achtergrond */
   z-index: 1;
   /* Een subtiele interne schaduw op de canvas om het meer 'ingebouwd' te laten lijken */
@@ -130,7 +132,6 @@ canvas {
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Schaduw voor diepte */
-  /* Added to account for dynamic craft button */
   height: 80px; /* Fixed height for HUD to prevent layout shifts */
   box-sizing: border-box; /* Include padding in height */
 }
@@ -440,114 +441,5 @@ canvas {
     border: 2px solid #007BFF;
     border-radius: 10px;
     background-color: #333;
-    color: #fff;
-    font-size: 1.2em;
-    text-align: center;
-    box-sizing: border-box;
-    box-shadow: inset 0 0 8px rgba(0, 123, 255, 0.3);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.name-input-field:focus {
-    border-color: #50FA7B; /* Groene focus rand */
-    box-shadow: inset 0 0 12px rgba(46, 204, 64, 0.5), 0 0 15px rgba(46, 204, 64, 0.4);
-    outline: none;
-}
-
-.name-input-field::placeholder {
-    color: #999;
-}
-
-/* Algemene fade-in animaties */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes fadeInScale {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-/* Responsive design voor kleinere schermen */
-@media (max-width: 800px) {
-    #game-container {
-        width: 100vw;
-        height: 100vh;
-        max-width: 100vw;
-        max-height: 100vh;
-        border-radius: 0;
-    }
-
-    #hud {
-        font-size: 0.9em;
-        padding: 8px 15px;
-        height: auto; /* Allow HUD to adjust height dynamically */
-    }
-
-    #hud div {
-        padding: 4px 8px;
-        margin: 2px;
-    }
-
-    #craft-btn {
-        padding: 8px 16px;
-        font-size: 1em;
-        margin-top: 10px; /* Add some space if it wraps */
-    }
-
-    .dialog-content {
-        padding: 25px;
-        font-size: 0.9em;
-        border-radius: 15px;
-    }
-
-    .dialog-content h2 {
-        font-size: 2em;
-    }
-
-    .main-button, #storyline-start-btn { /* Toegevoegd #storyline-start-btn */
-        padding: 12px 25px;
-        font-size: 1.2em;
-    }
-
-    .era-selector-grid {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 15px;
-    }
-
-    .era-button {
-        font-size: 1.1em;
-        padding: 10px 15px;
-    }
-
-    #level-completed-label {
-        font-size: 2.2em;
-        padding: 25px 50px;
-        border-radius: 18px;
-    }
-
-    #storyline-content {
-        padding: 30px;
-        border-radius: 15px;
-    }
-
-    #storyline-content h1 {
-        font-size: 2.5em;
-    }
-
-    #storyline-content p {
-        font-size: 1.1em;
-    }
-
-    #melding {
-        font-size: 1.8em;
-        padding: 20px 30px;
-    }
-}
+    color: #E0E0E0;
+    font-size: 1.2em;}
