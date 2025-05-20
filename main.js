@@ -11,18 +11,18 @@ const GAME_VERSION_SUFFIX = 'Early Alpha';
 const GAME_STATE = {
     MENU: 'menu',           // Startscherm / Verhaal intro
     PLAYING: 'playing',     // Actieve gameplay
-    DIALOG: 'dialog',       // Popup actief (Time Machine, Leaderboard, Game Over melding)
+    DIALOG: 'dialog',       // Popup actief (Time Machine, Leaderboard, Game Over melding, Naam invoer)
     LEVEL_COMPLETE: 'level_complete', // Tijdperk voltooid (voordat Time Machine opent)
     GAME_FINISHED: 'game_finished' // Spel helemaal uitgespeeld
 };
 
 // Game Instellingen & Balans
-const TILE_SIZE = 32;               // Grootte van speler, vijanden, kristallen
-const PLAYER_SPEED = 4;             // Snelheid van de speler
-const ENEMY_SPEED = 2;              // Snelheid van de vijanden
+const TILE_SIZE = 32;           // Grootte van speler, vijanden, kristallen
+const PLAYER_SPEED = 4;         // Snelheid van de speler
+const ENEMY_SPEED = 2;          // Snelheid van de vijanden
 const CRYSTAL_SPAWN_RATE = 0.02;    // Kans per frame dat een kristal spawnt (0.02 = 2%)
 const MAX_CRYSTALS_ON_SCREEN = 8;   // Maximaal aantal kristallen tegelijk op het scherm
-const MAX_HITS_ALLOWED = 5;         // Aantal hits voordat het tijdperk gereset wordt
+const MAX_HITS_ALLOWED = 5;      // Aantal hits voordat het tijdperk gereset wordt
 
 // --- 2. GAME STATE VARIABELEN ---
 let currentState = GAME_STATE.MENU; // Huidige staat van het spel
@@ -320,8 +320,8 @@ function resetEra() {
 
     // Reset de 'crafted' status voor het huidige tijdperk, indien nodig
     //eras[selectedEra].crafted = false; // Alleen resetten als je wilt dat je het item opnieuw moet craften na een Game Over
-                                      // Anders blijft deze true als je al gecraft had.
-                                      // Ik laat hem nu even staan, je kunt besluiten hem te uncommenten.
+                                    // Anders blijft deze true als je al gecraft had.
+                                    // Ik laat hem nu even staan, je kunt besluiten hem te uncommenten.
 
     initializeLevel(); // Roep initializeLevel() opnieuw aan om objecten te spawnen
     resetPlayer(); // Plaats de speler terug in het midden
@@ -532,7 +532,7 @@ function setLanguage(lang) {
 
     // Update alle UI-elementen
     updateGeneralUIText(); // Update verhaal en menu teksten
-    updateHUD();          // Update HUD teksten
+    updateHUD();            // Update HUD teksten
     updateTimeMachineUIText(); // Update Time Machine teksten (als open)
 
     // Update taalwisselaar UI (actieve vlag)
@@ -557,13 +557,13 @@ function startEra(eraId) {
     const era = eras[selectedEra];
 
     questProgress = 0; // Reset quest voortgang
-    hitsTaken = 0;     // Reset hits
-    score = 0;         // Score resetten voor een nieuw tijdperk
+    hitsTaken = 0;      // Reset hits
+    score = 0;          // Score resetten voor een nieuw tijdperk
     // era.crafted = false; // Niet per se resetten als je al gecraft had en opnieuw begint
 
     initializeLevel(); // Initialiseer game objecten voor dit tijdperk
-    resetPlayer();     // Speler in het midden plaatsen
-    updateHUD();       // Update HUD met de nieuwe tijdperk info
+    resetPlayer();      // Speler in het midden plaatsen
+    updateHUD();        // Update HUD met de nieuwe tijdperk info
     
     // Alleen starten als de game loop nog niet draait (of na een reset)
     if (!gameLoopId) {
@@ -593,7 +593,7 @@ function gameLoop() {
                 updateHUD();
                 // Speel geluid af of toon effect
                 if (questProgress >= eras[selectedEra].requiredCrystals) {
-                     displayMessage(getCurrentLanguage().questComplete, false);
+                    displayMessage(getCurrentLanguage().questComplete, false);
                 }
             }
         });
@@ -615,8 +615,8 @@ function gameLoop() {
                     } else {
                         // Game uitgespeeld
                         displayMessage(getCurrentLanguage().gameFinished, true);
-                        saveScoreToLeaderboard(score);
-                        showLeaderboard();
+                        requestPlayerNameForLeaderboard(); // NIEUWE AANROEP HIER!
+                        // showLeaderboard() wordt nu aangeroepen NA naam invoer
                         currentState = GAME_STATE.GAME_FINISHED; // Eindstatus
                     }
                 }, 1200); // Wacht even voordat de UI opent
@@ -694,14 +694,68 @@ const getLeaderboard = () => {
     return data ? JSON.parse(data) : [];
 };
 
-/** Slaat de score op naar het leaderboard. */
-function saveScoreToLeaderboard(scoreToSave) {
-    const lang = getCurrentLanguage();
-    let name = prompt(lang.enterName, '');
-    if (!name || name.trim() === '') {
-        name = lang.anonymous;
+/**
+ * Toont een inputveld om de naam van de speler op te vragen voor het leaderboard.
+ * Dit is een niet-blokkerende UI in plaats van een prompt().
+ */
+function requestPlayerNameForLeaderboard() {
+    currentState = GAME_STATE.DIALOG; // Zet de game in dialoog-modus
+    cancelAnimationFrame(gameLoopId); // Pauzeer de game loop
+
+    let overlay = document.getElementById('name-input-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'name-input-overlay';
+        overlay.classList.add('dialog-overlay'); // Algemene CSS class voor styling
+        document.body.appendChild(overlay);
     }
 
+    const lang = getCurrentLanguage();
+    overlay.innerHTML = `
+        <div class="dialog-content">
+            <h2 class="dialog-title">${lang.enterName}</h2>
+            <input type="text" id="player-name-input" placeholder="${lang.anonymous}" maxlength="20" class="name-input-field">
+            <button id="save-name-btn" class="main-button">${lang.close}</button>
+        </div>
+    `;
+
+    const playerNameInput = document.getElementById('player-name-input');
+    const saveNameBtn = document.getElementById('save-name-btn');
+
+    playerNameInput.focus(); // Focus op het inputveld
+
+    saveNameBtn.onclick = () => {
+        let name = playerNameInput.value.trim();
+        if (name === '') {
+            name = lang.anonymous;
+        }
+        
+        // Sla de score op met de ingevoerde naam
+        // We moeten score hier als argument meegeven, want het is geen globale variabele in deze functie scope
+        saveScoreToLeaderboardInternal(name, score); // Roep de interne opslag functie aan
+        
+        overlay.remove(); // Verwijder de overlay
+        showLeaderboard(); // Toon direct het leaderboard na het opslaan
+        // currentState wordt gezet door showLeaderboard
+        // gameLoopId wordt beheerd door showLeaderboard (die stopt hem, en de close knop van LB start hem weer, als nodig)
+        canvas.focus(); // Zorg dat canvas weer focus heeft
+    };
+
+    // Event listener voor Enter key in het inputveld
+    playerNameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            saveNameBtn.click(); // Trigger de klik op de opslaan knop
+        }
+    });
+}
+
+/**
+ * Interne functie om de score daadwerkelijk op te slaan naar localStorage.
+ * Deze functie wordt aangeroepen door requestPlayerNameForLeaderboard().
+ * @param {string} name - De naam van de speler.
+ * @param {number} scoreToSave - De score die opgeslagen moet worden.
+ */
+function saveScoreToLeaderboardInternal(name, scoreToSave) {
     let leaderboard = getLeaderboard();
     leaderboard.push({ name, score: scoreToSave, date: new Date().toLocaleString() });
     leaderboard = leaderboard.sort((a, b) => b.score - a.score).slice(0, 5); // Top 5
@@ -752,34 +806,23 @@ function showLeaderboard() {
 window.onload = function() {
     // Initialiseer taalkiezer
     document.getElementById('language-selector').addEventListener('click', (e) => {
-        if (e.target.tagName === 'SPAN' && e.target.hasAttribute('data-lang')) {
-            setLanguage(e.target.getAttribute('data-lang'));
+        if (e.target.tagName === 'SPAN' && e.target.dataset.lang) {
+            setLanguage(e.target.dataset.lang);
         }
     });
 
-    // Stel de initiële taal in (standaard 'en' of uit browser)
-    setLanguage(currentLanguage);
+    // Default taal instellen bij laden
+    setLanguage('nl'); // Start met Nederlands
 
-    // Update de algemene UI-tekst voor het startscherm
-    updateGeneralUIText();
-
-    // Start de game loop om het canvas te blijven tekenen (ook in MENU state)
-    // Dit zorgt ervoor dat het verhaal op de achtergrond getekend blijft
-    gameLoopId = requestAnimationFrame(gameLoop);
-
-    // Initialiseer de craft knop als deze nog niet in HTML stond
-    if (!craftButton) {
-        const hudElement = document.getElementById('hud');
-        if (hudElement) {
-            const newCraftBtn = document.createElement('button');
-            newCraftBtn.id = 'craft-btn';
-            newCraftBtn.classList.add('hud-button'); // Voeg een CSS class toe
-            newCraftBtn.onclick = tryCraft;
-            hudElement.appendChild(newCraftBtn);
-            // Referentie bijwerken naar de nieuwe knop
-            //craftButton = newCraftBtn; // Dit werkt niet direct als const, maar de ID pakt hem op
-        }
+    // Koppel de craft knop (als deze bestaat)
+    if (craftButton) {
+        craftButton.onclick = tryCraft;
     }
-    // Update de HUD initial
+
+    // Initialiseer de HUD en verhaal
     updateHUD();
+    updateGeneralUIText(); // Toont het startscherm / verhaal
+
+    // Start de game loop
+    // gameLoopId = requestAnimationFrame(gameLoop); // Deze wordt nu gestart door startGame() of startEra()
 };
