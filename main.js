@@ -2,7 +2,7 @@
 // ChronoQuest v0.1.1 First Public Release
 // Game title
 const gameTitle = 'ChronoQuest';
-const gameVersion = '0.1.1';
+const gameVersion = '0.2.0';
 const gameVersionSuffix = 'Early alpha';
 const gameTitleElement = document.getElementById('game-title');
 gameTitleElement.textContent = gameTitle;
@@ -322,6 +322,50 @@ function updateHUD() {
   craftBtn.textContent = era.crafted ? (currentLanguage === 'nl' ? 'Gecraft!' : 'Crafted!') : (currentLanguage === 'nl' ? 'Craft item' : 'Craft item');
 }
 
+// Leaderboard functionaliteit
+function getLeaderboard() {
+    const data = localStorage.getItem('chronoquest_leaderboard');
+    return data ? JSON.parse(data) : [];
+}
+
+function saveScoreToLeaderboard(score) {
+    let name = prompt(currentLanguage === 'nl' ? 'Voer je naam in voor het leaderboard:' : 'Enter your name for the leaderboard:', '');
+    if (!name || name.trim() === '') name = 'Anonymous';
+    let leaderboard = getLeaderboard();
+    leaderboard.push({ name, score, date: new Date().toLocaleString() });
+    leaderboard = leaderboard.sort((a, b) => b.score - a.score).slice(0, 5); // Top 5
+    localStorage.setItem('chronoquest_leaderboard', JSON.stringify(leaderboard));
+}
+
+function showLeaderboard() {
+    const leaderboard = getLeaderboard();
+    let html = `<h2 style='margin-bottom:10px;'>Leaderboard</h2><ol style='padding-left:20px;'>`;
+    if (leaderboard.length === 0) {
+        html += `<li>No scores yet</li>`;
+    } else {
+        leaderboard.forEach((entry, i) => {
+            html += `<li><strong>${entry.score}</strong> – <span style='font-size:0.9em;'>${entry.name}</span> <span style='font-size:0.8em;color:#888;'>${entry.date}</span></li>`;
+        });
+    }
+    html += `</ol><button id='close-leaderboard' style='margin-top:16px;padding:8px 24px;'>Close</button>`;
+    const overlay = document.createElement('div');
+    overlay.id = 'leaderboard-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.background = 'rgba(10,10,30,0.95)';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = '3000';
+    overlay.innerHTML = `<div style='background:#fff;padding:32px 48px;border-radius:16px;box-shadow:0 4px 24px #0008;text-align:center;'>${html}</div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('close-leaderboard').onclick = () => overlay.remove();
+}
+
 // Pas portaal logica aan: alleen open als gecraft is
 function gameLoop() {
     if (!gameStarted) return;
@@ -361,48 +405,14 @@ function gameLoop() {
                     setTimeout(showTimeMachine, 1200); // delay zodat label zichtbaar is
                 } else {
                     alert(currentLanguage === 'nl' ? 'Je hebt het spel uitgespeeld!' : 'You finished the game!');
-                    location.reload();
+                    saveScoreToLeaderboard(score);
+                    showLeaderboard();
                 }
-                gameStarted = false;
             }
         });
     }
-    drawGame();
-    requestAnimationFrame(gameLoop);
-}
-
-function updatePlayer() {
-    let dx = 0, dy = 0;
-    if (keys['ArrowLeft'] || keys['a']) dx -= gameObjects.player.speed;
-    if (keys['ArrowRight'] || keys['d']) dx += gameObjects.player.speed;
-    if (keys['ArrowUp'] || keys['w']) dy -= gameObjects.player.speed;
-    if (keys['ArrowDown'] || keys['s']) dy += gameObjects.player.speed;
-    const newX = gameObjects.player.x + dx;
-    const newY = gameObjects.player.y + dy;
-    if (newX >= 0 && newX <= canvas.width - gameObjects.player.size) {
-        gameObjects.player.x = newX;
-    }
-    if (newY >= 0 && newY <= canvas.height - gameObjects.player.size) {
-        gameObjects.player.y = newY;
-    }
-}
-
-function updateEnemies() {
-    gameObjects.enemies.forEach(enemy => {
-        enemy.x += Math.cos(enemy.direction) * enemy.speed;
-        enemy.y += Math.sin(enemy.direction) * enemy.speed;
-        if (enemy.x <= 0 || enemy.x >= canvas.width - enemy.size) {
-            enemy.direction = Math.PI - enemy.direction;
-        }
-        if (enemy.y <= 0 || enemy.y >= canvas.height - enemy.size) {
-            enemy.direction = -enemy.direction;
-        }
-    });
-}
-
-function drawGame() {
-    ctx.fillStyle = '#1a1a2e';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // --- TEKENEN OP CANVAS ---
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     // Draw player
     ctx.fillStyle = 'blue';
     ctx.fillRect(gameObjects.player.x, gameObjects.player.y, gameObjects.player.size, gameObjects.player.size);
@@ -423,6 +433,8 @@ function drawGame() {
     gameObjects.portals.forEach(portal => {
         ctx.fillRect(portal.x, portal.y, portal.size, portal.size);
     });
+    // Volgende frame
+    requestAnimationFrame(gameLoop);
 }
 
 function updateStorylineContent(lang) {
