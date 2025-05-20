@@ -28,6 +28,8 @@ let questGoal = 5;
 let questProgress = 0;
 let questDone = false;
 let currentLevel = 1;
+let hitsTaken = 0; // Houdt bij hoe vaak de speler is geraakt in het huidige level
+const MAX_HITS_ALLOWED = 5; // Het maximale aantal hits voordat het level gereset wordt
 
 // Game objects
 const gameObjects = {
@@ -191,12 +193,62 @@ function checkCollision(obj1, obj2) {
            obj1.y + obj1.size > obj2.y;
 }
 function handleEnemyCollision() {
-    currentState = GAME_STATE.DIALOG; // Of GAME_STATE.GAME_OVER als je die hebt
-    displayMessage(currentLanguage === 'nl' ? 'Je bent geraakt door een vijand! Game Over!' : 'You were hit by an enemy! Game Over!', true);
-    // Hier kun je logica toevoegen zoals:
-    score = 0;
-    // resetPlayer();
-    // Of een Game Over scherm tonen.
+    // Zorg ervoor dat deze functie alleen actief is als de game in PLAYING state is
+    if (currentState !== GAME_STATE.PLAYING) {
+        return; // Voorkom dat je geraakt wordt als de game gepauzeerd is (bv. door dialoog)
+    }
+
+    // 1. Kristallen afnemen (1 tot 3)
+    const crystalsToLose = Math.floor(Math.random() * 3) + 1; // Genereert een getal tussen 1 en 3
+    questProgress -= crystalsToLose;
+
+    if (questProgress < 0) {
+        questProgress = 0; // Zorg ervoor dat questProgress niet onder nul gaat
+    }
+
+    // 2. Hits verhogen
+    hitsTaken++;
+
+    // 3. Speler op een willekeurige plek spawnen
+    // Zorg ervoor dat de speler binnen het canvas blijft
+    gameObjects.player.x = Math.random() * (canvas.width - gameObjects.player.size);
+    gameObjects.player.y = Math.random() * (canvas.height - gameObjects.player.size);
+
+    // 4. Melding tonen met huidige hits
+    displayMessage(
+        currentLanguage === 'nl' ? `Je bent geraakt! ${crystalsToLose} kristallen verloren. (${hitsTaken}/${MAX_HITS_ALLOWED} hits)` : `You were hit! Lost ${crystalsToLose} crystals. (${hitsTaken}/${MAX_HITS_ALLOWED} hits)`,
+        true // Dit is een kritieke melding (rood)
+    );
+
+    // 5. Update de HUD onmiddellijk om de nieuwe kristalvoortgang en hits te tonen
+    updateHUD();
+
+    // 6. Controleer op Game Over (level reset)
+    if (hitsTaken >= MAX_HITS_ALLOWED) {
+        displayMessage(currentLanguage === 'nl' ? `Game Over! Je bent te vaak geraakt. Tijdperk wordt gereset.` : `Game Over! You were hit too many times. Era is being reset.`, true);
+        currentState = GAME_STATE.DIALOG; // Pauzeer de game voor de "Game Over" melding
+
+        // Wacht een paar seconden, reset dan het tijdperk
+        setTimeout(() => {
+            // Reset het huidige tijdperk naar de beginwaarden
+            hitsTaken = 0; // Reset hits voor het nieuwe begin van het tijdperk
+            questProgress = 0; // Reset kristallen voortgang
+            score = 0; // Reset score voor dit tijdperk (pas dit aan als je de score wilt behouden over tijdperken)
+            currentLevel = selectedEra; // Zorg ervoor dat je teruggaat naar het begin van het huidige tijdperk
+
+            initializeLevel(); // Roep initializeLevel() opnieuw aan om het tijdperk te resetten (vijanden, kristallen, etc.)
+            resetPlayer(); // Plaats de speler terug in het midden van het scherm
+            currentState = GAME_STATE.PLAYING; // Hervat de game
+            displayMessage('', false); // Leeg de "Game Over" melding
+            updateHUD(); // Update HUD met geresette waarden (score, voortgang, hits)
+        }, 3000); // Wacht 3 seconden voordat het tijdperk opnieuw begint
+    } else {
+        // Als het GEEN game over is, hervat de game na een korte pauze voor de melding
+        setTimeout(() => {
+            currentState = GAME_STATE.PLAYING;
+            displayMessage('', false); // Leeg de melding
+        }, 1500); // Wacht 1.5 seconden voordat de game verder gaat (speler kan weer bewegen)
+    }
 }
 function displayMessage(message, isCritical = false) {
     const meldingElement = document.getElementById('melding');
