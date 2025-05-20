@@ -906,4 +906,12 @@ window.onload = function() {
     if (storylineElement) {
         storylineElement.style.display = 'flex'; // Zorg dat de storyline bij start zichtbaar is
     }
+
+    // Controleer of de canvas correct is geïnitialiseerd
+    if (!canvas || !ctx) {
+        console.error('Canvas of context kon niet worden geïnitialiseerd. Controleer of de canvas correct in de HTML is opgenomen.');
+        alert('Er is een probleem met de game rendering. Probeer de pagina opnieuw te laden.');
+    } else {
+        console.log('Canvas en context succesvol geïnitialiseerd.');
+    }
 };

@@ -40,6 +40,8 @@ canvas {
   z-index: 1;
   box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7);
   margin-top: auto; /* Zorgt dat canvas naar onderen duwt als HUD bovenaan is */
+  visibility: visible; /* Zorg dat canvas niet verborgen is */
+  opacity: 1; /* Volledig zichtbaar */
 }
 
 /* Storyline Overlay (Startscherm) */
