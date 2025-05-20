@@ -1,0 +1,213 @@
+/* style.css */
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+body {
+  background: #1a1a2e;
+  color: #fff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+canvas {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: #111;
+  border: none;
+  z-index: 1;
+}
+
+#storyline {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100vh;
+  background: rgba(26, 26, 46, 0.98);
+  color: #fff;
+  text-align: center;
+  font-size: 1.2em;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Removed duplicate language-selector styles */
+
+#storyline-content {
+  max-width: 1200px;
+  width: 90%;
+  margin: auto;
+  line-height: 1.4;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+#storyline button {
+  font-size: 1.5em;
+  padding: 1rem 3rem;
+  margin-top: 2rem;
+  cursor: pointer;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+#storyline button:hover {
+  background: #1976d2;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(33, 150, 243, 0.4);
+}
+
+#storyline h1 {
+  font-size: 3em;
+  margin-bottom: 2rem;
+  color: #2196f3;
+  text-shadow: 0 0 10px rgba(33, 150, 243, 0.4);
+}
+
+#storyline p {
+  margin-bottom: 1rem;
+  font-size: 1.1em;
+  line-height: 1.4;
+}
+
+#storyline .story-text {
+  text-align: left;
+}
+
+#storyline .title-section {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+#storyline .button-section {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+#hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  background: rgba(20, 20, 40, 0.95);
+  color: #fff;
+  font-size: 1.2em;
+  z-index: 100;
+  padding: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#hud > div {
+  min-width: 120px;
+  text-align: center;
+}
+
+#melding {
+  color: rgb(251, 255, 0);
+  font-weight: bold;
+  min-width: 200px;
+}
+
+#language-selector {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  gap: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#language-selector button {
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#language-selector button:hover {
+  opacity: 1;
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+#language-selector button.active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+/* Top-down game styling */
+canvas {
+    background-color: #1a1a2e;
+    background-image: 
+        linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            transparent 25%,
+            transparent 75%,
+            rgba(255, 255, 255, 0.05) 75%,
+            rgba(255, 255, 255, 0.05)
+        ),
+        linear-gradient(
+            -45deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            transparent 25%,
+            transparent 75%,
+            rgba(255, 255, 255, 0.05) 75%,
+            rgba(255, 255, 255, 0.05)
+        );
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+}

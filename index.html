@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <meta name="description" content="ChronoQuest: Een gratis avontuurlijke webgame waar je door de tijd reist om de wereld te redden. Speel nu! | A free time-traveling adventure webgame | Un joc de aventură gratuit cu călătorii în timp.">
+  <meta name="keywords" content="webgame, gratis game, tijdreizen, avontuur, puzzels, nederlands, time travel, adventure game, free game, browser game, chronoquest, joc gratuit, călătorie în timp, aventură">
+  <meta name="author" content="Lucas6412F1">
+  <meta name="language" content="nl, en">  <title>ChronoQuest - Tijdreizende Avonturen | Time-Traveling Adventures</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="assets/sprites.js" defer></script>
+</head>
+<body>    <div id="game-container">
+    <div id="language-selector">
+      <span role="img" aria-label="Nederlands" onclick="setLanguage('nl')" class="active" title="Nederlands">🇳🇱</span>
+      <span role="img" aria-label="English" onclick="setLanguage('en')" title="English">🇬🇧</span>
+    </div>
+    
+    <h1 id="game-title" data-nl="Welkom bij ChronoQuest!" data-en="Welcome to ChronoQuest!">Welkom bij ChronoQuest!</h1>
+  
+  <div id="hud">
+    <div id="score">Score: 0</div>
+    <div id="level">Level: 1</div>
+    <div id="opdracht">Opdracht: ...</div>
+    <div id="voortgang">Voortgang: 0/0</div>
+    <div id="versie">Versie: 0.1 Vroege alpha</div>    
+    <div id="melding"></div>
+  </div>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="storyline">
+    <div id="storyline-content">
+      <h1><strong>ChronoQuest</strong></h1>
+      <p>In het jaar 2150 ontdek jij, een briljante uitvinder en avonturier, een mysterieuze tijdmachine die verborgen ligt onder de ruïnes van een oude stad. Deze technologie stelt je in staat om door verschillende tijdperken te reizen — van oorlogstijdperken in het verleden tot dystopische toekomstscenario's.</p>
+      <p>Maar de tijdlijn is ernstig verstoord. Oorlogen dreigen uit te breken die de toekomst kunnen vernietigen. Duistere krachten manipuleren gebeurtenissen om chaos te zaaien en macht te grijpen.</p>
+      <p>Jouw missie is helder: stop oorlogen voordat ze beginnen, voorkom rampen en red onschuldige mensen. Elk succes brengt de wereld een stukje dichter bij vrede en een betere toekomst.</p>
+      <p>Met je slimme uitvindingen en moedige acties moet je puzzels oplossen, vijanden slim te slim af zijn en belangrijke keuzes maken die de loop van de geschiedenis veranderen. Alleen jij kunt het tij keren en een betere wereld creëren — één tijdperk tegelijk.</p>
+      <button onclick="startGame()">Start spel</button>
+    </div>
+  </div>
+  
+  <script src="main.js"></script>
+</body>
+</html>
