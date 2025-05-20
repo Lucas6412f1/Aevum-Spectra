@@ -1,29 +1,36 @@
 /* Globale CSS Variabelen voor consistentie en eenvoudige aanpassing */
+/* Deze sectie definieert alle kleuren, schaduwen, etc. die door de rest van de CSS worden gebruikt. */
 :root {
     /* Kleurenpalet (geïnspireerd op diepe, rijke tinten met levendige accenten) */
-    --color-bg-primary: #171A21; /* Donkere, diepe achtergrond */
-    --color-bg-secondary: #2C303A; /* Iets lichtere donkere achtergrond voor panelen */
-    --color-bg-overlay: rgba(0, 0, 0, 0.9); /* Bijna zwart, semi-transparant voor overlays */
+    --color-bg-primary: #171A21; /* Donkere, diepe achtergrond voor de body en storyline overlay */
+    --color-bg-secondary: #2C303A; /* Iets lichtere donkere achtergrond voor panelen (game-container, modals) */
+    --color-bg-overlay: rgba(0, 0, 0, 0.9); /* Bijna zwart, semi-transparant voor full-screen overlays */
+    --color-bg-canvas: #0A0A0A; /* Specifiek voor de game canvas achtergrond, nog donkerder */
+    --color-bg-hud: rgba(0, 0, 0, 0.7); /* Donker, semi-transparant voor de HUD */
+    --color-bg-hud-item: rgba(255, 255, 255, 0.08); /* Achtergrond voor individuele HUD items */
 
     --color-text-light: #E0E6EB; /* Zacht wit voor hoofdtekst */
     --color-text-dim: #A0A8B0; /* Gedimde tekst voor details/hints */
-    --color-text-dark: #3E4450; /* Donkere tekst op lichte achtergronden */
+    --color-text-dark: #3E4450; /* Donkere tekst op lichte achtergronden (bijv. power-up label) */
 
-    --color-accent-blue: #00BFFF; /* Levendig blauw voor primaire acties/highlights */
-    --color-accent-purple: #9370DB; /* Zacht paars voor belangrijke UI-elementen (portaal) */
-    --color-accent-gold: #FFD700; /* Goud voor verzamelobjecten/progressie */
-    --color-accent-green: #2ECC71; /* Groen voor succes/power-ups */
-    --color-accent-red: #E74C3C; /* Rood voor waarschuwingen/vijanden */
-    --color-accent-cyan: #00FFFF; /* Cyaan voor specifieke power-ups */
+    --color-accent-blue: #00BFFF; /* Levendig cyaan-blauw voor primaire acties/highlights (knoppen, titels) */
+    --color-accent-purple: #9370DB; /* Zacht paars voor belangrijke UI-elementen (portaal, secundaire accenten) */
+    --color-accent-gold: #FFD700; /* Goud voor verzamelobjecten/progressie/belangrijke meldingen */
+    --color-accent-green: #2ECC71; /* Groen voor succes/power-ups/voltooide status */
+    --color-accent-red: #E74C3C; /* Rood voor waarschuwingen/vijanden/fouten */
+    --color-accent-cyan: #00FFFF; /* Puur cyaan voor specifieke power-ups (voor extra contrast) */
 
     /* Randen en scheidingen */
-    --color-border-light: rgba(255, 255, 255, 0.1);
-    --color-border-medium: rgba(255, 255, 255, 0.2);
+    --color-border-light: rgba(255, 255, 255, 0.1); /* Subtiele witte rand */
+    --color-border-medium: rgba(255, 255, 255, 0.2); /* Iets prominentere witte rand */
+    --color-border-dark: rgba(0, 0, 0, 0.3); /* Donkere rand voor specifieke elementen */
 
     /* Schaduwen voor diepte */
     --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.4);
     --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.6);
     --shadow-strong: 0 12px 40px rgba(0, 0, 0, 0.8);
+    --shadow-blue-glow: 0 0 20px rgba(0, 191, 255, 0.7); /* Blauwe gloed voor accenten */
+    --shadow-gold-glow: 0 0 15px rgba(255, 215, 0, 0.8); /* Gouden gloed */
 
     /* Overgangen (voor vloeiende animaties) */
     --transition-fast: 0.2s ease-in-out;
@@ -53,8 +60,8 @@
 body, html {
     height: 100vh;
     width: 100vw;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    color: var(--color-text-light);
+    font-family: 'Segoe UI', Arial, sans-serif; /* Modern, clean font */
+    color: var(--color-text-light); /* Zacht wit */
     background: linear-gradient(135deg, var(--color-bg-primary) 0%, #0D1117 100%); /* Diepe donkere gradiënt */
     display: flex;
     justify-content: center;
@@ -69,9 +76,9 @@ body, html {
     height: 600px; /* Net iets hoger */
     max-width: 95vw;
     max-height: 95vh;
-    background: var(--color-bg-secondary);
+    background: var(--color-bg-secondary); /* Iets lichtere donkere achtergrond */
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-strong);
+    box-shadow: var(--shadow-strong); /* Sterke schaduw voor diepte */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -86,37 +93,36 @@ canvas {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100% !important;
+    width: 100% !important; /* Zorg dat canvas de volledige breedte/hoogte van de parent vult */
     height: 100% !important;
-    background: #0A0A0A; /* Nog donkerdere achtergrond voor het speelveld */
+    background: var(--color-bg-canvas); /* Zeer donkere achtergrond voor het speelveld */
     z-index: 1; /* Onder de HUD */
-    /* Geen border hier, de parent game-container heeft al een rand */
 }
 
 /* HUD (Heads-Up Display) */
 #hud {
-    position: relative;
+    position: relative; /* Moet boven de canvas liggen */
     z-index: 10;
     width: 100%;
-    background: rgba(0, 0, 0, 0.7); /* Donkerder, semi-transparant */
+    background: var(--color-bg-hud); /* Donkerder, semi-transparant */
     padding: var(--spacing-sm) var(--spacing-md);
     display: flex;
     justify-content: space-around;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Zodat items kunnen wrappen op kleinere schermen */
     gap: var(--spacing-sm);
     border-bottom: 1px solid var(--color-border-light);
-    box-shadow: var(--shadow-soft);
+    box-shadow: var(--shadow-soft); /* Zachte schaduw */
 }
 
 #hud div {
-    background: rgba(255, 255, 255, 0.08); /* Iets zichtbaardere achtergrond voor elk item */
+    background: var(--color-bg-hud-item); /* Iets zichtbaardere achtergrond voor elk item */
     padding: var(--spacing-sm) var(--spacing-md);
     border-radius: var(--radius-sm);
     font-size: 1em; /* Iets kleiner lettertype voor compactheid */
     font-weight: bold;
     color: var(--color-text-light);
-    white-space: nowrap;
+    white-space: nowrap; /* Voorkom afbreken van tekst */
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Kleine tekstschaduw */
 }
 
@@ -127,7 +133,7 @@ canvas {
     transform: translate(-50%, -50%);
     font-size: 4em; /* Grotere titel */
     color: var(--color-accent-blue);
-    text-shadow: 0 0 20px var(--color-accent-blue), 0 0 30px var(--color-accent-purple); /* Intense gloed */
+    text-shadow: var(--shadow-blue-glow), 0 0 30px var(--color-accent-purple); /* Intense gloed */
     z-index: 5; /* Boven canvas, onder HUD */
     pointer-events: none; /* Niet-klikbaar */
 }
@@ -150,7 +156,7 @@ canvas {
     transition: opacity var(--transition-slow), transform var(--transition-slow);
 }
 
-/* Animatie voor meldingen (niet kritiek) */
+/* Animatie voor meldingen */
 @keyframes fadeInOut {
     0% { opacity: 0; transform: translateX(-50%) translateY(30px); }
     10% { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -189,13 +195,14 @@ canvas {
     align-items: center;
     z-index: 1000;
     opacity: 1;
-    transition: opacity var(--transition-slow);
+    transition: opacity var(--transition-slow), visibility 0s linear var(--transition-slow); /* Voeg visibility toe */
 }
 
 #storyline.hidden {
     opacity: 0;
     pointer-events: none;
     visibility: hidden; /* Zorgt ervoor dat het element na animatie volledig verdwijnt */
+    transition: opacity var(--transition-slow), visibility 0s linear; /* Geen delay op visibility verdwijnen */
 }
 
 #storyline-content {
@@ -223,7 +230,7 @@ canvas {
     font-size: 3.5em; /* Iets grotere titel */
     color: var(--color-accent-blue);
     margin-bottom: var(--spacing-sm);
-    text-shadow: 0 0 15px rgba(0, 191, 255, 0.7); /* Intensere gloed */
+    text-shadow: var(--shadow-blue-glow); /* Intensere gloed */
     line-height: 1.2;
 }
 
@@ -245,7 +252,7 @@ canvas {
     font-weight: bold;
     cursor: pointer;
     transition: background var(--transition-medium), transform var(--transition-medium), box-shadow var(--transition-medium);
-    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.4);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.4); /* Subtiele gloed */
     min-width: 280px; /* Consistent minimum breedte */
     letter-spacing: 0.05em; /* Subtiele letterafstand */
     text-transform: uppercase; /* Hoofdletters voor professionele look */
@@ -254,7 +261,7 @@ canvas {
 .main-button:hover {
     background: #007ACC; /* Iets donkerder blauw bij hover */
     transform: translateY(-5px); /* Meer uitgesproken lift */
-    box-shadow: 0 10px 25px rgba(0, 191, 255, 0.6);
+    box-shadow: 0 10px 25px rgba(0, 191, 255, 0.6); /* Sterkere gloed bij hover */
 }
 
 .main-button:active {
@@ -277,7 +284,7 @@ canvas {
     top: var(--spacing-md);
     right: var(--spacing-md);
     z-index: 9999;
-    background: var(--color-bg-overlay);
+    background: var(--color-bg-hud); /* Consistent met HUD achtergrond */
     padding: var(--spacing-sm);
     border-radius: var(--radius-md);
     display: flex;
@@ -307,8 +314,8 @@ canvas {
 
 #language-selector span.active {
     opacity: 1;
-    border: 2px solid var(--color-accent-gold);
-    box-shadow: 0 0 12px var(--color-accent-gold);
+    border: 2px solid var(--color-accent-gold); /* Actieve taal krijgt een gouden rand */
+    box-shadow: var(--shadow-gold-glow); /* Gouden gloed voor actieve taal */
     transform: scale(1.05); /* Lichte schaal voor actieve status */
 }
 
@@ -332,8 +339,8 @@ canvas {
 .dialog-overlay.hidden {
     opacity: 0;
     pointer-events: none;
-    visibility: hidden; /* Zorgt ervoor dat het element volledig verdwijnt */
-    transition: opacity var(--transition-medium), visibility 0s linear; /* Geen delay op visibility verdwijnen */
+    visibility: hidden;
+    transition: opacity var(--transition-medium), visibility 0s linear;
 }
 
 .dialog-content {
@@ -359,7 +366,7 @@ canvas {
     font-size: 2.8em; /* Grotere titel */
     color: var(--color-accent-blue);
     margin-bottom: var(--spacing-sm);
-    text-shadow: 0 0 10px rgba(0, 191, 255, 0.6);
+    text-shadow: var(--shadow-blue-glow);
     letter-spacing: 0.03em;
 }
 
@@ -372,7 +379,7 @@ canvas {
 }
 
 .era-card {
-    background: rgba(255, 255, 255, 0.08); /* Iets meer contrast */
+    background: var(--color-bg-hud-item); /* Gebruik de HUD item BG voor consistentie */
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
     display: flex;
@@ -386,14 +393,14 @@ canvas {
 
 .era-card:hover {
     transform: translateY(-8px); /* Meer lift bij hover */
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5); /* Donkerdere schaduw */
     border-color: var(--color-border-medium);
 }
 
 .era-button {
-    background: #4A505D; /* Iets donkerder achtergrond voor de knop */
+    background: var(--color-bg-secondary); /* Iets donkerder achtergrond voor de knop */
     color: var(--color-text-light);
-    border: 1px solid rgba(255, 255, 255, 0.3); /* Duidelijkere rand */
+    border: 1px solid var(--color-border-medium); /* Duidelijkere rand */
     padding: 12px 20px;
     border-radius: var(--radius-sm);
     font-size: 1.1em;
@@ -409,7 +416,7 @@ canvas {
 .era-button.selected {
     background: var(--color-accent-blue);
     border-color: var(--color-accent-gold);
-    box-shadow: 0 0 18px var(--color-accent-blue); /* Sterkere gloed bij selectie */
+    box-shadow: var(--shadow-blue-glow); /* Sterkere gloed bij selectie */
     color: white;
     transform: scale(1.02); /* Lichte schaal bij selectie */
 }
@@ -453,7 +460,7 @@ canvas {
 
 .name-input-field:focus {
     border-color: var(--color-accent-gold);
-    box-shadow: 0 0 15px var(--color-accent-gold);
+    box-shadow: var(--shadow-gold-glow);
 }
 
 .leaderboard-list {
@@ -464,7 +471,7 @@ canvas {
 }
 
 .leaderboard-list li {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--color-bg-hud-item);
     padding: 15px 25px; /* Royaler padding */
     margin-bottom: var(--spacing-sm);
     border-radius: var(--radius-md);
@@ -593,9 +600,9 @@ canvas {
     .main-button {
         padding: 15px 30px;
         font-size: 1.3em;
-        min-width: unset;
-        width: 85%;
-        max-width: 350px;
+        min-width: unset; /* Verwijder min-width om de knop responsiever te maken */
+        width: 85%; /* Maak knop 85% breed van de parent */
+        max-width: 350px; /* Maar niet breder dan dit */
     }
 
     .dialog-content {
