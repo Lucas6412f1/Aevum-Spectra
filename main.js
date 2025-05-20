@@ -4,8 +4,8 @@
 
 // Game Informatie
 const GAME_TITLE = 'Aevum Spectra';
-const GAME_VERSION = '0.4.3'; // Updated to version 0.4.3
-const GAME_VERSION_SUFFIX = 'Optimized Alpha'; // Aangepast naar 'Optimized Alpha'
+const GAME_VERSION = '0.5'; // Updated to version 0.5
+const GAME_VERSION_SUFFIX = 'Alpha';
 
 // Game States
 const GAME_STATE = {
@@ -43,7 +43,8 @@ const gameObjects = {
     },
     crystals: [],
     enemies: [],
-    portals: []
+    portals: [],
+    powerUps: [] // Voeg power-ups toe aan game objects
 };
 
 // --- 4. DATA MODELLEN ---
@@ -381,20 +382,47 @@ function spawnEnemy() {
     });
 }
 
-function tryCraft() {
-    const lang = getCurrentLanguage();
-    const era = eras[selectedEra];
+// --- Power-Up Feature ---
+const POWER_UP_TYPES = ['speed', 'invincibility'];
+let activePowerUp = null;
+let powerUpTimer = null;
 
-    if (!era.crafted && questProgress >= era.requiredCrystals) {
-        era.crafted = true;
-        score += 25; // Bonus score voor craften
-        displayMessage(lang.itemCrafted(era.craftItemName[currentLanguage]));
+function spawnPowerUp() {
+    const margin = 50;
+    const powerUp = {
+        x: margin + Math.random() * (canvas.width - margin * 2),
+        y: margin + Math.random() * (canvas.height - margin * 2),
+        size: TILE_SIZE,
+        type: POWER_UP_TYPES[Math.floor(Math.random() * POWER_UP_TYPES.length)]
+    };
+    gameObjects.powerUps.push(powerUp);
+}
+
+function activatePowerUp(type) {
+    activePowerUp = type;
+    clearTimeout(powerUpTimer);
+    powerUpTimer = setTimeout(() => {
+        activePowerUp = null;
         updateHUD();
-        canvas.focus(); // Zorgt dat de speler direct verder kan
-    } else {
-        displayMessage(lang.notEnoughCrystals, false);
-        canvas.focus();
+    }, 10000); // Power-Up lasts for 10 seconds
+
+    if (type === 'speed') {
+        gameObjects.player.speed *= 2;
+        setTimeout(() => gameObjects.player.speed = PLAYER_SPEED, 10000);
+    } else if (type === 'invincibility') {
+        // Handle invincibility logic
     }
+
+    updateHUD();
+}
+
+function updatePowerUps() {
+    gameObjects.powerUps.forEach((powerUp, index) => {
+        if (checkCollision(gameObjects.player, powerUp)) {
+            activatePowerUp(powerUp.type);
+            gameObjects.powerUps.splice(index, 1);
+        }
+    });
 }
 
 // --- 10. UI UPDATERS ---
@@ -424,6 +452,17 @@ function updateHUD() {
     if (craftButton) {
         craftButton.textContent = era.crafted ? lang.crafted : lang.craftItem;
         craftButton.disabled = era.crafted || questProgress < era.requiredCrystals;
+    }
+
+    // Update voor actieve power-ups
+    const powerUpElement = document.getElementById('active-power-up');
+    if (powerUpElement) {
+        if (activePowerUp) {
+            powerUpElement.textContent = `Actieve Power-Up: ${activePowerUp}`;
+            powerUpElement.style.display = 'block';
+        } else {
+            powerUpElement.style.display = 'none';
+        }
     }
 }
 
@@ -587,6 +626,7 @@ function gameLoop() {
     if (currentState === GAME_STATE.PLAYING) {
         updatePlayer();
         updateEnemies();
+        updatePowerUps();
         
         if (gameObjects.crystals.filter(c => !c.collected).length < MAX_CRYSTALS_ON_SCREEN && Math.random() < CRYSTAL_SPAWN_RATE) {
             spawnCrystal();
@@ -722,6 +762,14 @@ function drawGame() {
         ctx.arc(centerX, centerY, portal.size * 0.4, 0, Math.PI * 2);
         ctx.stroke();
     });
+
+    // --- Teken Power-Ups (Krachtige Circles) ---
+    gameObjects.powerUps.forEach(powerUp => {
+        ctx.fillStyle = powerUp.type === 'speed' ? '#00FF00' : '#FFD700';
+        ctx.beginPath();
+        ctx.arc(powerUp.x + powerUp.size / 2, powerUp.y + powerUp.size / 2, powerUp.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+    });
 }
 
 // --- 13. LEADERBOARD FUNCTIES ---
@@ -822,7 +870,6 @@ function showLeaderboard() {
         updateGeneralUIText(); // Zorgt dat de "Start spel" knop taal correct is
     };
 }
-
 
 // --- 14. INITIALISATIE EN EVENT LISTENERS ---
 

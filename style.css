@@ -127,19 +127,19 @@ canvas {
 #hud {
   position: relative;
   width: 100%; /* Neem de volledige breedte van de container */
-  background: rgba(10, 10, 15, 0.9); /* Donkere, semi-transparante achtergrond */
-  backdrop-filter: blur(4px); /* Subtiele blur */
-  padding: 12px 25px;
+  background: linear-gradient(90deg, #1A202C, #0D1117);
+  backdrop-filter: blur(6px); /* Subtiele blur */
+  padding: 15px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  font-size: 1.1em;
+  font-size: 1.2em;
   z-index: 10;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Schaduw voor diepte */
-  height: 80px; /* Fixed height for HUD to prevent layout shifts */
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); /* Schaduw voor diepte */
+  height: 90px; /* Fixed height for HUD to prevent layout shifts */
   box-sizing: border-box; /* Include padding in height */
 }
 
@@ -158,6 +158,26 @@ canvas {
 #opdracht { color: #8BE9FD; } /* Lichtblauw opdracht */
 #voortgang { color: #FF80BF; } /* Roze-paarse voortgang */
 #versie { font-size: 0.85em; color: #AAA; margin-left: auto; }
+
+/* Power-Up Display */
+#power-up {
+  color: #FFD700;
+  font-weight: bold;
+  background: rgba(255, 223, 0, 0.1);
+  padding: 8px 15px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 10px rgba(255, 223, 0, 0.3);
+  animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px rgba(255, 223, 0, 0.5);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(255, 223, 0, 1);
+  }
+}
 
 /* Meldingen */
 #melding {
