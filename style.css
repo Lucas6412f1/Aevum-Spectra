@@ -502,6 +502,7 @@ canvas {
     border-radius: 0; /* Geen afgeronde hoeken op full screen */
   }
 
+
   #hud {
     padding: 8px 10px;
     font-size: 0.9em;
@@ -553,7 +554,7 @@ canvas {
     width: 90%; /* Meer ruimte op mobiel */
   }
 
-  .leaderboard-list li {
+  .leaderboard-list {
     font-size: 1em;
     padding: 10px 15px;
   }

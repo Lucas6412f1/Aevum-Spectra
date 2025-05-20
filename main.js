@@ -1,6 +1,7 @@
 // main.js - Aevum Spectra Game Logic (Modernized for 2025!)
 
-import { initializeButton } from './supportLogic';
+// Belangrijk: Zorg ervoor dat 'supportLogic.js' in dezelfde map staat
+import { initializeButton } from './supportLogic.js'; // Let op de .js extensie!
 
 // --- 1. GLOBALE CONSTANTEN EN VARIABELEN ---
 
@@ -33,6 +34,8 @@ let questProgress = 0;
 let hitsTaken = 0;
 let gameLoopId;
 let currentLanguage = 'nl';
+let activePowerUp = null; // Power-up staat
+let powerUpTimer = null; // Timer voor power-ups
 
 // --- 3. GAME OBJECTS ---
 const gameObjects = {
@@ -147,6 +150,7 @@ let canvas, ctx;
 let gameContainer, storylineElement, storylineStartButton;
 let scoreElement, levelElement, questElement, progressElement, versionElement, meldingElement;
 let craftButton;
+let languageSelector; // Referentie naar de taal selector
 
 let keys = {};
 
@@ -156,6 +160,7 @@ window.onload = function() {
     gameContainer = document.getElementById('game-container');
     storylineElement = document.getElementById('storyline');
     storylineStartButton = document.getElementById('storyline-start-btn');
+    languageSelector = document.getElementById('language-selector');
 
     scoreElement = document.getElementById('score');
     levelElement = document.getElementById('level');
@@ -178,11 +183,14 @@ window.onload = function() {
     }
 
     // Event listener voor de taal selector
-    document.getElementById('language-selector').addEventListener('click', (e) => {
-        if (e.target.tagName === 'SPAN' && e.target.dataset.lang) {
-            setLanguage(e.target.dataset.lang);
-        }
-    });
+    if (languageSelector) {
+        languageSelector.addEventListener('click', (e) => {
+            if (e.target.tagName === 'SPAN' && e.target.dataset.lang) {
+                setLanguage(e.target.dataset.lang);
+            }
+        });
+    }
+
 
     // Event listeners voor toetsenbord input
     document.addEventListener('keydown', e => {
@@ -198,8 +206,16 @@ window.onload = function() {
     // Gebruik de utility functie om de Start Game knop te initialiseren
     initializeButton('storyline-start-btn', startGame);
 
-    // Initialiseer de game staat en toon het startscherm
-    setLanguage('nl');
+    // --- BELANGRIJKE INITIALISATIE VAN DE UI ZICHTBAARHEID ---
+    // Zorg ervoor dat de game-container verborgen is en de storyline zichtbaar bij start
+    if (gameContainer) {
+        gameContainer.classList.add('hidden'); // Verberg de game-container initieel
+    }
+    if (storylineElement) {
+        storylineElement.classList.remove('hidden'); // Zorg dat de storyline bij start zichtbaar is
+    }
+
+    setLanguage('nl'); // Initialiseer de taal en update UI teksten
 
     // Controleer of de canvas correct is geïnitialiseerd
     if (!canvas || !ctx) {
@@ -411,8 +427,6 @@ function tryCraft() {
 
 // --- Power-Up Feature ---
 const POWER_UP_TYPES = ['speed', 'invincibility'];
-let activePowerUp = null;
-let powerUpTimer = null;
 
 function spawnPowerUp() {
     if (gameObjects.powerUps.length < 2) {
@@ -554,7 +568,11 @@ function showTimeMachine() {
     };
 
     document.getElementById('era-quest-display').textContent = eras[selectedEra].quest[currentLanguage];
-    document.querySelector(`.era-button[data-era="${selectedEra}"]`).classList.add('selected');
+    // Zorg ervoor dat de momenteel geselecteerde era-knop ook visueel geselecteerd is wanneer de Time Machine opent
+    const currentEraButton = document.querySelector(`.era-button[data-era="${selectedEra}"]`);
+    if (currentEraButton) {
+        currentEraButton.classList.add('selected');
+    }
 }
 
 // Functie om de Time Machine UI-teksten te updaten bij taalwissel
@@ -563,7 +581,8 @@ function updateTimeMachineUIText() {
     if (timemachineOverlay && !timemachineOverlay.classList.contains('hidden')) { // Controleer of de overlay zichtbaar is
         const lang = getCurrentLanguage();
 
-        timemachineOverlay.querySelector('h2').textContent = lang.timemachineTitle;
+        const titleElement = timemachineOverlay.querySelector('h2');
+        if (titleElement) titleElement.textContent = lang.timemachineTitle;
 
         document.querySelectorAll('#era-select .era-button').forEach(btn => {
             const eraId = parseInt(btn.getAttribute('data-era'));
@@ -574,8 +593,11 @@ function updateTimeMachineUIText() {
             }
         });
 
-        document.getElementById('era-quest-display').textContent = eras[selectedEra].quest[currentLanguage];
-        document.getElementById('start-era-btn').textContent = lang.startEraBtn;
+        const eraQuestDisplay = document.getElementById('era-quest-display');
+        if (eraQuestDisplay) eraQuestDisplay.textContent = eras[selectedEra].quest[currentLanguage];
+
+        const startEraBtn = document.getElementById('start-era-btn');
+        if (startEraBtn) startEraBtn.textContent = lang.startEraBtn;
     }
 }
 
@@ -645,24 +667,26 @@ function startEra(eraId) {
 
     questProgress = 0;
     hitsTaken = 0;
-    score = 0;
+    score = 0; // Reset score bij start nieuwe era
 
     initializeLevel();
     resetPlayer();
     updateHUD();
 
+    // Zorg ervoor dat de gameloop start als deze nog niet draait
     if (!gameLoopId) {
         gameLoopId = requestAnimationFrame(gameLoop);
-    } else {
-        if (currentState !== GAME_STATE.PLAYING) {
-            gameLoopId = requestAnimationFrame(gameLoop);
-        }
     }
 }
 
 // --- 12. GAME LOOP EN RENDERING ---
 
+// Optimaliseer canvas rendering met een buffer-canvas
+const bufferCanvas = document.createElement('canvas');
+const bufferCtx = bufferCanvas.getContext('2d');
+
 function gameLoop() {
+    // Alleen doorgaan met de game logic als de staat PLAYING is
     if (currentState === GAME_STATE.PLAYING) {
         updatePlayer();
         updateEnemies();
@@ -705,26 +729,27 @@ function gameLoop() {
                         requestPlayerNameForLeaderboard();
                         currentState = GAME_STATE.GAME_FINISHED;
                     }
-                }, 1200);
+                }, 1200); // Wacht even na het tonen van het label
             }
         }
     }
 
-    drawGame();
-    if (currentState === GAME_STATE.PLAYING || currentState === GAME_STATE.DIALOG || currentState === GAME_STATE.LEVEL_COMPLETE || currentState === GAME_STATE.GAME_FINISHED) {
-        // Blijf renderen, zelfs in dialoog of na level/game voltooiing, zodat overlays zichtbaar blijven
+    drawGame(); // Altijd tekenen, zelfs als het spel gepauzeerd is, zodat dialogen zichtbaar blijven.
+
+    // Blijf de game loop aanvragen zolang de game niet volledig is afgesloten of een kritieke fout heeft.
+    if (currentState !== GAME_STATE.GAME_FINISHED && currentState !== GAME_STATE.MENU) {
         gameLoopId = requestAnimationFrame(gameLoop);
     }
+    // Als de game in MENU staat is, wordt de loop pas gestart bij startGame()
+    // Als de game GAME_FINISHED is, wordt de loop niet meer gestart
 }
 
-// Optimaliseer canvas rendering met een buffer-canvas
-const bufferCanvas = document.createElement('canvas');
-const bufferCtx = bufferCanvas.getContext('2d');
 
 function drawGame() {
     if (!canvas || !ctx) return;
 
-    if (bufferCanvas.width === 0 || bufferCanvas.height === 0) {
+    // Stel de bufferCanvas grootte in als deze nog niet is ingesteld
+    if (bufferCanvas.width !== canvas.width || bufferCanvas.height !== canvas.height) {
         bufferCanvas.width = canvas.width;
         bufferCanvas.height = canvas.height;
     }
@@ -863,9 +888,9 @@ function showLeaderboard() {
 
     document.getElementById('close-leaderboard-btn').onclick = () => {
         overlay.classList.add('hidden'); // Verberg de overlay
-        currentState = GAME_STATE.MENU;
+        currentState = GAME_STATE.MENU; // Terug naar het hoofdmenu staat
         storylineElement.classList.remove('hidden'); // Zorg dat de storyline weer zichtbaar wordt
         gameContainer.classList.add('hidden'); // Verberg de game-container weer
-        updateGeneralUIText();
+        updateGeneralUIText(); // Update teksten voor eventuele taalwisseling
     };
 }

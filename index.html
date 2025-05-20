@@ -16,7 +16,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-container" class="hidden"> <div id="language-selector">
+    <div id="game-container"> <div id="language-selector">
             <span role="img" aria-label="Nederlands" onclick="setLanguage('nl')" class="active" data-lang="nl" title="Nederlands">🇳🇱</span>
             <span role="img" aria-label="English" onclick="setLanguage('en')" data-lang="en" title="English">🇬🇧</span>
         </div>
@@ -32,15 +32,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <div id="melding" class="hidden"></div> </div>
 
         <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
 
-        <div id="storyline"> <div id="storyline-content">
-                <h1 id="storyline-title" data-nl="<strong>Welkom bij Aevum Spectra!</strong>" data-en="<strong>Welcome to Aevum Spectra!</strong>"><strong>Aevum Spectra</strong></h1>
-                <p data-nl="In het jaar 2150 ontdek jij, een briljante uitvinder en avonturier, een mysterieuze tijdmachine die verborgen ligt onder de ruïnes van een oude stad. Deze technologie stelt je in staat om door verschillende tijdperken te reizen — van oorlogstijdperken in het verleden tot dystopische toekomstscenario's." data-en="In the year 2150, you, a brilliant inventor and adventurer, discover a mysterious time machine hidden beneath the ruins of an old city. This technology allows you to travel through different eras — from war-torn pasts to dystopian futures."></p>
-                <p data-nl="Maar de tijdlijn is ernstig verstoord. Oorlogen dreigen uit te breken die de toekomst kunnen vernietigen. Duistere krachten manipuleren gebeurtenissen om chaos te zaaien en macht te grijpen." data-en="But the timeline is severely disrupted. Wars threaten to erupt that could destroy the future. Dark forces are manipulating events to sow chaos and seize power."></p>
-                <p data-nl="Jouw missie is helder: stop oorlogen voordat ze beginnen, voorkom rampen en red onschuldige mensen. Elk succes brengt de wereld een stukje dichter bij vrede en een betere toekomst." data-en="Your mission is clear: stop wars before they start, prevent disasters, and save innocent people. Every success brings the world closer to peace and a better future."></p>
-                <p data-nl="Met je slimme uitvindingen en moedige acties moet je puzzels oplossen, vijanden slim te slim af zijn en belangrijke keuzes maken die de loop van de geschiedenis bepalen. Ben je klaar om de tijden te trotseren en Aevum Spectra te herstellen?" data-en="With your clever inventions and courageous actions, you must solve puzzles, outsmart enemies, and make important choices that determine the course of history. Are you ready to brave the ages and restore Aevum Spectra?"></p>
-                <button id="storyline-start-btn" class="main-button" data-nl="Start spel" data-en="Start game">Start spel</button>
-            </div>
+    <div id="storyline">
+        <div id="storyline-content">
+            <h1 id="storyline-title" data-nl="<strong>Welkom bij Aevum Spectra!</strong>" data-en="<strong>Welcome to Aevum Spectra!</strong>"><strong>Aevum Spectra</strong></h1>
+            <p data-nl="In het jaar 2150 ontdek jij, een briljante uitvinder en avonturier, een mysterieuze tijdmachine die verborgen ligt onder de ruïnes van een oude stad. Deze technologie stelt je in staat om door verschillende tijdperken te reizen — van oorlogstijdperken in het verleden tot dystopische toekomstscenario's." data-en="In the year 2150, you, a brilliant inventor and adventurer, discover a mysterious time machine hidden beneath the ruins of an old city. This technology allows you to travel through different eras — from war-torn pasts to dystopian futures."></p>
+            <p data-nl="Maar de tijdlijn is ernstig verstoord. Oorlogen dreigen uit te breken die de toekomst kunnen vernietigen. Duistere krachten manipuleren gebeurtenissen om chaos te zaaien en macht te grijpen." data-en="But the timeline is severely disrupted. Wars threaten to erupt that could destroy the future. Dark forces are manipulating events to sow chaos and seize power."></p>
+            <p data-nl="Jouw missie is helder: stop oorlogen voordat ze beginnen, voorkom rampen en red onschuldige mensen. Elk succes brengt de wereld een stukje dichter bij vrede en een betere toekomst." data-en="Your mission is helder: stop wars before they start, prevent disasters, and save innocent people. Every success brings the world closer to peace and a better future."></p>
+            <p data-nl="Met je slimme uitvindingen en moedige acties moet je puzzels oplossen, vijanden slim te slim af zijn en belangrijke keuzes maken die de loop van de geschiedenis bepalen. Ben je klaar om de tijden te trotseren en Aevum Spectra te herstellen?" data-en="With your clever inventions and courageous actions, you must solve puzzles, outsmart enemies, and make important choices that determine the course of history. Are you ready to brave the ages and restore Aevum Spectra?"></p>
+            <button id="storyline-start-btn" class="main-button" data-nl="Start spel" data-en="Start game">Start spel</button>
         </div>
     </div>
 
@@ -48,7 +49,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <div id="name-input-overlay" class="dialog-overlay hidden"></div>
     <div id="leaderboard-overlay" class="dialog-overlay hidden"></div>
 
-    <script src="supportLogic.js"></script>
-    <script src="main.js"></script>
+    <script type="module" src="supportLogic.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>
