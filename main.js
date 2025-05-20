@@ -142,7 +142,24 @@ function resetPlayer() {
     gameObjects.player.x = canvas.width / 2 - gameObjects.player.size / 2;
     gameObjects.player.y = canvas.height / 2 - gameObjects.player.size / 2;
 }
+function updatePlayer() {
+    if (keys['ArrowUp'] || keys['w']) {
+        gameObjects.player.y -= gameObjects.player.speed;
+    }
+    if (keys['ArrowDown'] || keys['s']) {
+        gameObjects.player.y += gameObjects.player.speed;
+    }
+    if (keys['ArrowLeft'] || keys['a']) {
+        gameObjects.player.x -= gameObjects.player.speed;
+    }
+    if (keys['ArrowRight'] || keys['d']) {
+        gameObjects.player.x += gameObjects.player.speed;
+    }
 
+    // Zorg ervoor dat de speler binnen de canvasgrenzen blijft
+    gameObjects.player.x = Math.max(0, Math.min(canvas.width - gameObjects.player.size, gameObjects.player.x));
+    gameObjects.player.y = Math.max(0, Math.min(canvas.height - gameObjects.player.size, gameObjects.player.y));
+}
 function startGame() {
     const storylineElement = document.getElementById('storyline');
     if (storylineElement) {
