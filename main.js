@@ -1,6 +1,6 @@
 // Game title
 const gameTitle = 'Aevum Spectra';
-const gameVersion = '0.2.0';
+const gameVersion = '0.2.0B';
 const gameVersionSuffix = 'Early alpha';
 const gameTitleElement = document.getElementById('game-title');
 gameTitleElement.textContent = gameTitle;
