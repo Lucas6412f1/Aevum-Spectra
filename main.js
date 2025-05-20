@@ -85,126 +85,43 @@ let selectedEra = 0; // Index van het momenteel geselecteerde/actieve tijdperk
 // Multi-language support
 const translations = {
     nl: {
-        welcome: "Welkom bij Aevum Spectra!", // Hardcoded in HTML, maar hier voor consistentie
+        welcome: "Welkom bij Aevum Spectra!",
         score: "Score",
-        level: "Tijdperk", // Aangepast van "Level" naar "Tijdperk" in JS
+        level: "Tijdperk",
         quest: "Opdracht",
         progress: "Voortgang",
         version: "Versie",
-        startGame: "Start spel", // Voor de button
-        versionSuffix: "Alpha",
+        startGame: "Start spel",
         questComplete: "Opdracht voltooid!",
-        levelComplete: "Tijdperk voltooid! Op naar het volgende avontuur!",
+        levelComplete: "Tijdperk voltooid!",
         crafted: "Gecraft!",
         craftItem: "Craft item",
         notEnoughCrystals: "Niet genoeg kristallen om te craften!",
-        itemCrafted: (itemName) => `Je hebt de ${itemName} gecraft!`,
-        hitMessage: (crystalsLost, hits, maxHits) => `Je bent geraakt! ${crystalsLost} kristallen verloren. (${hits}/${maxHits} hits)`,
-        gameOverMessage: "Game Over! Je bent te vaak geraakt. Tijdperk wordt gereset.",
+        gameOverMessage: "Game Over! Je bent te vaak geraakt.",
         gameFinished: "Gefeliciteerd! Je hebt alle tijdperken voltooid!",
-        enterName: "Voer je naam in voor het leaderboard:",
-        anonymous: "Anoniem",
-        noScoresYet: "Nog geen scores",
-        close: "Sluiten",
-        leaderboardTitle: "Leaderboard",
-        timemachineTitle: "🕰️ Tijdmachine",
-        levelReady: "Tijdperk voltooid!", // Aangepast voor consistentie
-        startEraBtn: "Start Tijdperk",
-        // Story tekst is nu hardcoded in index.html, dus deze wordt niet gebruikt door JS voor content
-        story: {
-            title: "Aevum Spectra",
-            intro: "In het jaar 2150 ontdek jij, een briljante uitvinder en avonturier, een mysterieuze tijdmachine die verborgen ligt onder de ruïnes van een oude stad. Deze technologie stelt je in staat om door verschillende tijdperken te reizen — van oorlogstijdperken in het verleden tot dystopische toekomstscenario's.",
-            conflict: "Maar de tijdlijn is ernstig verstoord. Oorlogen dreigen uit te breken die de toekomst kunnen vernietigen. Duistere krachten manipuleren gebeurtenissen om chaos te zaaien en macht te grijpen.",
-            mission: "Jouw missie is helder: stop oorlogen voordat ze beginnen, voorkom rampen en red onschuldige mensen. Elk succes brengt de wereld een stukje dichter bij vrede en een betere toekomst.",
-            gameplay: "Met je slimme uitvindingen en moedige acties moet je puzzels oplossen, vijanden slim te slim af zijn en belangrijke keuzes maken die de loop van de geschiedenis veranderen. Alleen jij kunt het tij keren en een betere wereld creëren — één tijdperk tegelijk."
-        }
     },
     en: {
-        welcome: "Welcome to Aevum Spectra!", // Hardcoded in HTML, maar hier voor consistentie
+        welcome: "Welcome to Aevum Spectra!",
         score: "Score",
-        level: "Era", // Aangepast van "Level" naar "Era" in JS
+        level: "Era",
         quest: "Quest",
         progress: "Progress",
         version: "Version",
-        startGame: "Start game", // Voor de button
-        versionSuffix: "Alpha",
+        startGame: "Start game",
         questComplete: "Quest complete!",
-        levelComplete: "Era complete! On to the next adventure!",
+        levelComplete: "Era complete!",
         crafted: "Crafted!",
         craftItem: "Craft item",
         notEnoughCrystals: "Not enough crystals to craft!",
-        itemCrafted: (itemName) => `You crafted the ${itemName}!`,
-        hitMessage: (crystalsLost, hits, maxHits) => `You were hit! Lost ${crystalsLost} crystals. (${hits}/${MAX_HITS_ALLOWED} hits)`,
-        gameOverMessage: "Game Over! You were hit too many times. Era is being reset.",
+        gameOverMessage: "Game Over! You were hit too many times.",
         gameFinished: "Congratulations! You have completed all eras!",
-        enterName: "Enter your name for the leaderboard:",
-        anonymous: "Anonymous",
-        noScoresYet: "No scores yet",
-        close: "Close",
-        leaderboardTitle: "Leaderboard",
-        timemachineTitle: "🕰️ Time Machine",
-        levelReady: "Era completed!", // Aangepast voor consistentie
-        startEraBtn: "Start Era",
-        // Story tekst is nu hardcoded in index.html, dus deze wordt niet gebruikt door JS voor content
-        story: {
-            title: "Aevum Spectra",
-            intro: "In the year 2150, you, a brilliant inventor and adventurer, discover a mysterious time machine hidden beneath the ruins of an ancient city. This technology allows you to travel through different eras — from wartorn periods in the past to dystopian future scenarios.",
-            conflict: "But the timeline is severely disturbed. Wars threaten to break out that could destroy the future. Dark forces are manipulating events to sow chaos and seize power.",
-            mission: "Your mission is clear: stop wars before they begin, prevent disasters, and save innocent people. Each success brings the world one step closer to peace and a better future.",
-            gameplay: "With your clever inventions and brave actions, you must solve puzzles, outsmart enemies, and make important choices that change the course of history. Only you can turn the tide and create a better world — one era at a time."
-        }
     }
 };
 
-// --- 5. DOM ELEMENT REFERENTIES ---
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const gameContainer = document.getElementById('game-container'); // Nieuwe referentie
-const gameTitleElement = document.getElementById('game-title');
-const storylineElement = document.getElementById('storyline');
-const storylineStartButton = document.getElementById('storyline-start-btn'); // Verwijzing naar de knop in de hardcoded storyline
-const hudElement = document.getElementById('hud');
-const scoreElement = document.getElementById('score');
-const levelElement = document.getElementById('level');
-const questElement = document.getElementById('opdracht');
-const progressElement = document.getElementById('voortgang');
-const versionElement = document.getElementById('versie');
-const meldingElement = document.getElementById('melding');
-
-// Dynamisch gemaakte elementen - worden later in JS aangemaakt
-let craftButton;
-let levelCompletedLabel;
-
-// --- 6. INITIALISATIE CANVAS ---
-// Canvas breedte en hoogte moeten relatief zijn aan de container.
-// Omdat de HUD nu boven het canvas staat in de flexbox, moeten we de canvas hoogte aanpassen
-// De `width` en `height` attributen op de canvas tag bepalen de interne resolutie.
-// Deze zijn nu afgestemd op de nieuwe container afmetingen en HUD hoogte.
-canvas.width = 900;
-canvas.height = 470; // (550px container hoogte - 80px HUD hoogte)
-
-// --- 7. INPUT HANDLING ---
-const keys = {};
-document.addEventListener('keydown', e => {
-    // Zorg ervoor dat de keys alleen geregistreerd worden tijdens het spelen
-    if (currentState === GAME_STATE.PLAYING) {
-        keys[e.key.toLowerCase()] = true;
-    }
-});
-document.addEventListener('keyup', e => {
-    if (currentState === GAME_STATE.PLAYING) {
-        keys[e.key.toLowerCase()] = false;
-    }
-});
-
-canvas.addEventListener('click', () => {
-    // Focus de canvas zodat toetsenbord input werkt zonder extra klik
-    canvas.focus();
-});
-
-// --- 8. HELPER FUNCTIES ---
-
-const getCurrentLanguage = () => translations[currentLanguage] || translations['nl'];
+// Function to get the current language translations
+function getCurrentLanguage() {
+    return translations[currentLanguage] || translations['en'];
+}
 
 /**
  * Toont een tijdelijke melding op het scherm.
@@ -673,103 +590,48 @@ function gameLoop() {
     }
 }
 
-/** Tekent alle game-objecten op het canvas met verbeterde visuele stijlen. */
+// Optimaliseer canvas rendering met een buffer-canvas
+const bufferCanvas = document.createElement('canvas');
+const bufferCtx = bufferCanvas.getContext('2d');
+
+bufferCanvas.width = canvas.width;
+bufferCanvas.height = canvas.height;
+
+/**
+ * Tekent alle game-objecten op de buffer-canvas en kopieert deze naar de hoofd-canvas.
+ */
 function drawGame() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Wis het canvas
+    bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height); // Wis de buffer-canvas
 
-    // --- Optimalisatie: Schaduwinstellingen groeperen ---
-    // Stel schaduw één keer in voor alle objecten die dezelfde schaduwstijl delen
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = 'rgba(0, 191, 255, 0.7)'; // Speler schaduw
-    
-    // --- Teken Speler (Modern Blokkig) ---
+    // --- Teken Speler ---
     const player = gameObjects.player;
-    ctx.fillStyle = '#00BFFF'; // Levendig hemelsblauw
-    ctx.fillRect(player.x, player.y, player.size, player.size);
-    
-    // Voeg een subtielere binnenste schaduw toe (apart getekend)
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.shadowColor = 'transparent'; // Schaduw resetten voor dit element
-    ctx.fillRect(player.x, player.y, player.size, player.size);
-    ctx.globalCompositeOperation = 'source-over';
+    bufferCtx.fillStyle = '#00BFFF';
+    bufferCtx.fillRect(player.x, player.y, player.size, player.size);
 
-    // --- Reset schaduw voor andere objecten ---
-    ctx.shadowBlur = 0; // Reset schaduw na het tekenen van de speler
-
-    // --- Teken Kristallen (Glinsterende Diamanten) ---
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = 'rgba(255, 215, 0, 0.8)'; // Kristal schaduw
-
+    // --- Teken Kristallen ---
+    bufferCtx.fillStyle = '#FFD700';
     gameObjects.crystals.forEach(crystal => {
         if (!crystal.collected) {
-            ctx.fillStyle = '#FFD700'; // Goudgeel
-            ctx.beginPath();
-            ctx.moveTo(crystal.x + crystal.size / 2, crystal.y);
-            ctx.lineTo(crystal.x + crystal.size, crystal.y + crystal.size / 2);
-            ctx.lineTo(crystal.x + crystal.size / 2, crystal.y + crystal.size);
-            ctx.lineTo(crystal.x, crystal.y + crystal.size / 2);
-            ctx.closePath();
-            ctx.fill();
+            bufferCtx.beginPath();
+            bufferCtx.arc(crystal.x + crystal.size / 2, crystal.y + crystal.size / 2, crystal.size / 2, 0, Math.PI * 2);
+            bufferCtx.fill();
         }
     });
 
-    // --- Reset schaduw voor andere objecten ---
-    ctx.shadowBlur = 0;
-
-    // --- Teken Vijanden (Agressieve Driehoeken/Pijlen) ---
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = 'rgba(255, 65, 54, 0.7)'; // Vijand schaduw
-    ctx.fillStyle = '#FF4136'; // Fel rood
-
+    // --- Teken Vijanden ---
+    bufferCtx.fillStyle = '#FF4136';
     gameObjects.enemies.forEach(enemy => {
-        ctx.beginPath();
-        ctx.moveTo(enemy.x, enemy.y + enemy.size);
-        ctx.lineTo(enemy.x + enemy.size / 2, enemy.y);
-        ctx.lineTo(enemy.x + enemy.size, enemy.y + enemy.size);
-        ctx.closePath();
-        ctx.fill();
+        bufferCtx.beginPath();
+        bufferCtx.moveTo(enemy.x, enemy.y + enemy.size);
+        bufferCtx.lineTo(enemy.x + enemy.size / 2, enemy.y);
+        bufferCtx.lineTo(enemy.x + enemy.size, enemy.y + enemy.size);
+        bufferCtx.closePath();
+        bufferCtx.fill();
     });
 
-    // --- Reset schaduw voor andere objecten ---
-    ctx.shadowBlur = 0;
-
-    // --- Teken Portaal (Glowy Vortex) ---
-    gameObjects.portals.forEach(portal => {
-        const centerX = portal.x + portal.size / 2;
-        const centerY = portal.y + portal.size / 2;
-        
-        // Gloed effect (groter en meer diffuus)
-        const gradient = ctx.createRadialGradient(centerX, centerY, portal.size * 0.2, centerX, centerY, portal.size * 0.5);
-        gradient.addColorStop(0, 'rgba(177, 13, 201, 1)');
-        gradient.addColorStop(0.7, 'rgba(177, 13, 201, 0.5)');
-        gradient.addColorStop(1, 'rgba(177, 13, 201, 0)');
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, portal.size * 0.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        // De daadwerkelijke portaal (donkerder en kleiner)
-        ctx.fillStyle = '#7F0A99';
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, portal.size * 0.3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Een lichte ring om het portaal te accentueren
-        ctx.strokeStyle = '#E0B0FF';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, portal.size * 0.4, 0, Math.PI * 2);
-        ctx.stroke();
-    });
-
-    // --- Teken Power-Ups (Krachtige Circles) ---
-    gameObjects.powerUps.forEach(powerUp => {
-        ctx.fillStyle = powerUp.type === 'speed' ? '#00FF00' : '#FFD700';
-        ctx.beginPath();
-        ctx.arc(powerUp.x + powerUp.size / 2, powerUp.y + powerUp.size / 2, powerUp.size / 2, 0, Math.PI * 2);
-        ctx.fill();
-    });
+    // Kopieer de buffer naar de hoofd-canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bufferCanvas, 0, 0);
 }
 
 // --- 13. LEADERBOARD FUNCTIES ---
