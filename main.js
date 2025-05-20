@@ -1,8 +1,8 @@
 // main.js
-// ChronoQuest v0.1.0 First Public Release
+// ChronoQuest v0.1.1 First Public Release
 // Game title
 const gameTitle = 'ChronoQuest';
-const gameVersion = '0.1.0 First Public Release';
+const gameVersion = '0.1.1';
 const gameVersionSuffix = 'Early alpha';
 const gameTitleElement = document.getElementById('game-title');
 gameTitleElement.textContent = gameTitle;
