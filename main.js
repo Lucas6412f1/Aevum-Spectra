@@ -195,9 +195,25 @@ function handleEnemyCollision() {
     displayMessage(currentLanguage === 'nl' ? 'Je bent geraakt door een vijand! Game Over!' : 'You were hit by an enemy! Game Over!', true);
     // Hier kun je logica toevoegen zoals:
     score = 0;
-    resetPlayer();
+    // resetPlayer();
     // Of een Game Over scherm tonen.
 }
+function displayMessage(message, isCritical = false) {
+    const meldingElement = document.getElementById('melding');
+    if (meldingElement) {
+        meldingElement.textContent = message;
+        meldingElement.style.color = isCritical ? 'red' : 'yellow'; // Kleur de melding rood als het kritiek is
+        meldingElement.style.display = 'block'; // Zorg dat het zichtbaar is
+
+        if (!isCritical) { // Voor niet-kritieke meldingen, laat ze verdwijnen na een paar seconden
+            setTimeout(() => {
+                meldingElement.textContent = '';
+                meldingElement.style.display = 'none';
+            }, 3000); // Verdwijnt na 3 seconden
+        }
+    }
+}
+
 function startGame() {
     const storylineElement = document.getElementById('storyline');
     if (storylineElement) {
