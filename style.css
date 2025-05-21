@@ -16,7 +16,7 @@
     --color-text-light: #E0E6EB; /* Zacht wit voor hoofdtekst */
     --color-text-dim: #A0A8B0; /* Gedimde tekst voor details/hints */
     --color-text-dark: #3E4450; /* Donkere tekst op lichte achtergronden (bijv. power-up label) */
-
+    --color-player: #44ff00; /* Cyaan-blauw voor de speler (helder en opvallend) */
     --color-accent-blue: #00BFFF; /* Levendig cyaan-blauw voor primaire acties/highlights (knoppen, titels) */
     --color-accent-purple: #9370DB; /* Zacht paars voor belangrijke UI-elementen (portaal, secundaire accenten) */
     --color-accent-gold: #FFD700; /* Goud voor verzamelobjecten/progressie/belangrijke meldingen */
