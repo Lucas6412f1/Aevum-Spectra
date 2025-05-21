@@ -8,7 +8,11 @@
     --color-bg-canvas: #0A0A0A; /* Specifiek voor de game canvas achtergrond, nog donkerder */
     --color-bg-hud: rgba(0, 0, 0, 0.7); /* Donker, semi-transparant voor de HUD */
     --color-bg-hud-item: rgba(255, 255, 255, 0.08); /* Achtergrond voor individuele HUD items */
-
+    --color-player-invincible: rgba(0, 255, 255, 0.5); /* Cyaan voor invincibility effect */
+    --color-crystal: rgba(255, 215, 0, 0.5); /* Goud voor de crystal effect */
+    --color-enemy: rgba(231, 76, 60, 0.5); /* Rood voor vijand effect */
+    --color-portal: rgba(147, 112, 219, 0.5); /* Paars voor portaal effect */
+    --color-border: rgba(255, 255, 255, 0.1); /* Subtiele randkleur voor elementen */
     --color-text-light: #E0E6EB; /* Zacht wit voor hoofdtekst */
     --color-text-dim: #A0A8B0; /* Gedimde tekst voor details/hints */
     --color-text-dark: #3E4450; /* Donkere tekst op lichte achtergronden (bijv. power-up label) */
